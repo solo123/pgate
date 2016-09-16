@@ -1,0 +1,7 @@
+one:
+  name: 普尔支付
+  org_id: pooul
+  tmk: 1234567890abcdef
+  d0_min_fee: 30
+  d0_min_percent: 3000
+  status: 1
