@@ -87,7 +87,8 @@ class P001Test < ActionDispatch::IntegrationTest
     l.info "response.body = " + response.body
     body = JSON.parse(response.body)
 
-    assert_equal '00', body['resp_code']
+    assert_equal 'A0', body['resp_code']
   end
+
 
 end
