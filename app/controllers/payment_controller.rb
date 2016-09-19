@@ -1,13 +1,16 @@
 class PaymentController < ApplicationController
   def pay
     biz = Biz::GatewayPaymentBiz.new
-    js = biz.check_required_params(params)
-    if js
+    js = biz.check_required_params(params[:payment])
+    if js[:resp_code] != '00'
       render json: js
       return
     end
 
-    payment = ClientPayment.new(params)
+    payment = ClientPayment.new(params[:payment])
+    payment.client = Client.find_by(org_id: params[:org_id])
+    payment.save
+    #debugger
     js = payment.check_payment_fields
     payment.reload
     if js[:resp_code] == '00'
