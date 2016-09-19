@@ -21,4 +21,17 @@ class PaymentController < ApplicationController
     render json: {resp_code: payment.resp_code, resp_desc: payment.resp_desc, redirect_url: payment.redirect_url}
   end
 
+  def get_mac
+    p = params[:payment].to_h
+    mab = ''
+    p.keys.sort.each do |k|
+      mab << p[k]
+    end
+    if p['org_id']
+      client = Client.find_by(org_id: p['org_id'])
+      mab << Client.find_by(org_id: p['org_id']).tmk if client
+    end
+    render plain: Digest::MD5.hexdigest(mab) + "\n" + mab
+  end
+
 end
