@@ -1,16 +1,24 @@
 class PaymentController < ApplicationController
   def pay
-    Rails.logger.level = :error
+    Rails.logger.level = 0
 
     biz = Biz::PaymentBiz.new
-    js = biz.check_required_params(params[:payment])
+    begin
+      para_js = JSON.parse(params[:data])
+    rescue
+      Rails.logger.info "数据格式错误：" + para_js.to_s
+      render json: {resp_code: '30', resp_desc: '数据格式错误'}
+      return
+    end
+
+    js = biz.check_required_params(para_js)
     if js[:resp_code] != '00'
       render json: js
       return
     end
 
-    payment = ClientPayment.new(params[:payment])
-    payment.client = Client.find_by(org_id: params[:org_id])
+    payment = ClientPayment.new(para_js)
+    payment.client = Client.find_by(org_id: para_js['org_id'])
     payment.save
     #debugger
     js = payment.check_payment_fields
@@ -24,7 +32,7 @@ class PaymentController < ApplicationController
   end
 
   def get_mac
-    p = params[:payment].to_h
+    p = params[:data].to_h
     mab = ''
     p.keys.sort.each do |k|
       mab << p[k] if k != 'mac'
