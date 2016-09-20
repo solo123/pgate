@@ -28,7 +28,7 @@ module Biz
         id_num: client_payment.person_id_num,
         body: "#{client_payment.client.name} - #{client_payment.order_title}",
         notify_url: NOTIFY_URL,
-        callback_url: CALLBACK_URL
+        callback_url: client_payment.callback_url
       }
       kf_js = kaifu_api_format(js)
       js[:mac] = kf_js["mac"] = get_mac(kf_js, TMK)
