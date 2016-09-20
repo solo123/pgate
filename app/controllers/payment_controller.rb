@@ -1,6 +1,8 @@
 class PaymentController < ApplicationController
   def pay
-    biz = Biz::GatewayPaymentBiz.new
+    Rails.logger.level = :error
+
+    biz = Biz::PaymentBiz.new
     js = biz.check_required_params(params[:payment])
     if js[:resp_code] != '00'
       render json: js
@@ -12,9 +14,9 @@ class PaymentController < ApplicationController
     payment.save
     #debugger
     js = payment.check_payment_fields
-    payment.reload
+    payment.save
     if js[:resp_code] == '00'
-      biz = Biz::KaiFuApi.new
+      biz = Biz::KaifuApi.new
       biz.send_kaifu_payment(payment)
     end
     payment.reload
@@ -25,7 +27,7 @@ class PaymentController < ApplicationController
     p = params[:payment].to_h
     mab = ''
     p.keys.sort.each do |k|
-      mab << p[k]
+      mab << p[k] if k != 'mac'
     end
     if p['org_id']
       client = Client.find_by(org_id: p['org_id'])

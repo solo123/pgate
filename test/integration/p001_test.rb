@@ -90,5 +90,20 @@ class P001Test < ActionDispatch::IntegrationTest
     assert_equal 'A0', body['resp_code']
   end
 
+  test "invalid format post" do
+    post payment_url, params: "a=1&b=2"
+    assert_response :success
+    body = JSON.parse(response.body)
+    assert_equal '30', body['resp_code']
+  end
+
+  test "post form format" do
+    Rails.logger.info "post form"
+    post payment_path, params: 'payment={org_id=test&trans_type=P001&mac=abc}'
+    assert_response :success
+    body = JSON.parse(response.body)
+    assert_equal '30', body['resp_code']
+  end
+
 
 end
