@@ -5,9 +5,6 @@ class P001Test < ActionDispatch::IntegrationTest
   end
 
   test "P001 非法格式" do
-    l = Rails.logger
-    l.level = :error
-
     params = {
       org_id: 'pooul999',
       order_time: '20160915010001'
@@ -17,52 +14,34 @@ class P001Test < ActionDispatch::IntegrationTest
       xhr: true,
       as: :json
     assert_response :success
-    l.info "response.body = " + response.body
     body = JSON.parse(response.body)
-
     assert_equal '30', body['resp_code']
   end
   test "P001 未注册商户" do
-    l = Rails.logger
-
     params = {
-      org_id: 'pooul999',
+      org_id: 'pooul9991',
       trans_type: 'P001',
       mac: '111'
     }
-    post payment_url,
-      params: params,
-      xhr: true,
-      as: :json
+    post payment_url, params: {data: params.to_json}
     assert_response :success
-    l.info "response.body = " + response.body
     body = JSON.parse(response.body)
-
     assert_equal '03', body['resp_code']
   end
-  test 'P001 缺少字段' do
-    l = Rails.logger
-    l.level = :debug
-
+  test 'P001 mac错' do
     params = {
       org_id: 'pooul',
-      trans_type: 'P001'
-
+      trans_type: 'P001',
+      mac: '111'
     }
-    post payment_url,
-      params: params,
-      xhr: true,
-      as: :json
+    post payment_url, params: {data: params.to_json}
     assert_response :success
-    l.info "response.body = " + response.body
     body = JSON.parse(response.body)
-
-    assert_equal '30', body['resp_code']
-
+    assert_equal 'A0', body['resp_code']
   end
 
   test 'P001 成功提交' do
-    l = Rails.logger
+    Biz::KaifuApi.any_instance.stubs(:send_kaifu).returns({resp_code: '00', redirect_url: 'https://open.weixin.qq.com/mock'})
     params = {
       org_id: 'pooul',
       trans_type: 'P001',
@@ -71,23 +50,21 @@ class P001Test < ActionDispatch::IntegrationTest
       order_title: '普尔支付-购买测试商品',
       pay_pass: '1',
       amount: '1000',
-      fee: '6',
+      fee: '33',
       card_no: '600012341000123',
       card_holder_name: ' 张三丰',
       person_id_num: '440101190001010011',
       notify_url: 'http://myapps.com/nitify',
-      callback_url: 'http://mobileapp.com/callback',
-      mac: '1234567890abcdef'
+      callback_url: 'http://mobileapp.com/callback'
     }
-    post payment_url,
-      params: params,
-      xhr: true,
-      as: :json
+    client = Client.find_by(org_id: params[:org_id])
+    biz = Biz::PubEncrypt.new
+    params[:mac] = biz.md5_mac(params, client.tmk)
+    post payment_url, params: {data: params.to_json}
     assert_response :success
-    l.info "response.body = " + response.body
-    body = JSON.parse(response.body)
-
-    assert_equal 'A0', body['resp_code']
+    j = JSON.parse(response.body)
+    assert_equal '00', j['resp_code']
+    assert_match /^https:\/\/open.weixin.qq.com/, j['redirect_url']
   end
 
   test "invalid format post" do
@@ -98,12 +75,36 @@ class P001Test < ActionDispatch::IntegrationTest
   end
 
   test "post form format" do
-    Rails.logger.info "post form"
-    post payment_path, params: 'payment={org_id=test&trans_type=P001&mac=abc}'
+    post payment_path, params: 'data={"org_id":"pooul","trans_type":"P001","mac":"abc"}'
     assert_response :success
     body = JSON.parse(response.body)
-    assert_equal '30', body['resp_code']
+    assert_equal 'A0', body['resp_code']
   end
 
+  test 'P001 手续费过低' do
+    Biz::KaifuApi.any_instance.stubs(:send_kaifu).returns({resp_code: '00', redirect_url: 'https://open.weixin.qq.com/mock'})
+    params = {
+      org_id: 'pooul',
+      trans_type: 'P001',
+      order_time: '20160915010231',
+      order_id: 'A20100001',
+      order_title: '普尔支付-购买测试商品',
+      pay_pass: '1',
+      amount: '1000',
+      fee: '32',
+      card_no: '600012341000123',
+      card_holder_name: ' 张三丰',
+      person_id_num: '440101190001010011',
+      notify_url: 'http://myapps.com/nitify',
+      callback_url: 'http://mobileapp.com/callback'
+    }
+    client = Client.find_by(org_id: params[:org_id])
+    biz = Biz::PubEncrypt.new
+    params[:mac] = biz.md5_mac(params, client.tmk)
+    post payment_url, params: {data: params.to_json}
+    assert_response :success
+    j = JSON.parse(response.body)
+    assert_equal '30', j['resp_code']
+  end
 
 end

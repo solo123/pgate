@@ -52,17 +52,17 @@ module Biz
     end
 
     def send_kaifu(js)
-      uri = URI(Biz::KaiFuApi::API_URL_OPENID)
+      uri = URI(API_URL_OPENID)
       resp = Net::HTTP.post_form(uri, data: js.to_json)
 
-
+=begin
       Rails.logger.info '------KaiFu D0 B001------'
       Rails.logger.info 'data = ' + js.to_json.to_s
       Rails.logger.info 'resp = ' + resp.to_s
       Rails.logger.info 'resp = ' + resp.to_hash.to_s
       Rails.logger.info 'resp.body = ' + resp.body.to_s
       Rails.logger.info 'resp.body.class = ' + resp.body.class.to_s
-
+=end
       if resp.is_a?(Net::HTTPRedirection)
         j = {resp_code: '00', resp_desc: '交易成功', status: 8, redirect_url: resp['location']}
       elsif resp.is_a?(Net::HTTPOK)
