@@ -88,7 +88,7 @@ module Biz
     def get_mab(js)
       mab = ''
       js.keys.sort.each {|k| mab << js[k] if k != 'mac' && js[k] }
-      mab << tmk
+      mab
     end
     def get_mackey
       '1234567890abcdef'
