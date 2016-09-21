@@ -3,9 +3,11 @@ module Biz
     ORG_ID = 'puerhanda'
     TMK = '9DB9095654D1FA7763F32E6B4E922140'
     API_URL_OPENID = 'http://61.135.202.242/payform/organization_ymf'
+    API_URL_QUERY = 'http://61.135.202.242:8022/payform/organization'
+    API_URL_APP = 'http://61.135.202.242:8020/payform/organization'
     NOTIFY_URL = 'http://112.74.184.236:8010/recv_notify'
     CALLBACK_URL = 'http://112.74.184.236:8010/recv_callback'
-    OPENID_B001_FLDS = "sendTime,sendSeqId,transType,organizationId,payPass,transAmt,fee,cardNo,name,idNum,body,notifyUrl,callbackUrl"
+    #OPENID_B001_FLDS = "sendTime,sendSeqId,transType,organizationId,payPass,transAmt,fee,cardNo,name,idNum,body,notifyUrl,callbackUrl"
 
     def send_kaifu_payment(client_payment)
       case client_payment.trans_type
@@ -13,6 +15,8 @@ module Biz
         create_b001(client_payment)
       when 'P002'
         create_b002(client_payment)
+      when 'P003'
+        create_b001(client_payment)
       else
         {resp_code: '12', resp_desc: "无此交易：#{client_payment.trans_type}"}
       end
@@ -52,30 +56,51 @@ module Biz
     end
     def create_kaifu_payment(client_payment, js)
       kf_js = kaifu_api_format(js)
-      js[:mac] = kf_js["mac"] = get_mac(kf_js, TMK)
+      js[:mac] = kf_js["mac"] = get_mac(kf_js, client_payment.trans_type)
       gw = KaifuGateway.new(js)
       gw.client_payment = client_payment
       gw.save
 
-      ret_js = send_kaifu(kf_js)
+      ret_js = send_kaifu(kf_js, client_payment.trans_type)
+      ret_js[:status] = (ret_js[:resp_code] == '00') ? 8 : 7
       client_payment.update(ret_js)
       gw.update(ret_js)
       ret_js
     end
 
-    def get_mac(js, tmk)
-      mab = ''
-      js.keys.sort.each {|k| mab << js[k] }
-      mab << tmk
-      Rails.logger.info 'mab = ' + mab
-      mac = Digest::MD5.hexdigest(mab)
-      mac
+    def get_mac(js, trans_type)
+      case trans_type
+      when 'P001'
+        Digest::MD5.hexdigest(get_mab(js) + TMK)
+      when 'P002'
+        Digest::MD5.hexdigest(get_mab(js) + TMK)
+      when 'P003'
+        biz = Biz::PosEncrypt.new
+        biz.kaifu_mac(mab, get_mackey)
+      when 'P004'
+        biz = Biz::PosEncrypt.new
+        biz.kaifu_mac(mab, get_mackey)
+      else
+        ''
+      end
     end
 
-    def send_kaifu(js)
-      uri = URI(API_URL_OPENID)
-      resp = Net::HTTP.post_form(uri, data: js.to_json)
+    def get_mab(js)
+      mab = ''
+      js.keys.sort.each {|k| mab << js[k] if k != 'mac' && js[k] }
+      mab << tmk
+    end
+    def get_mackey
+      '1234567890abcdef'
+    end
 
+    def send_kaifu(js, trans_type)
+      if trans_type == 'P001' || trans_type == 'P002'
+        uri = URI(API_URL_OPENID)
+      else
+        uri = URI(API_URL_APP)
+      end
+      resp = Net::HTTP.post_form(uri, data: js.to_json)
 =begin
       Rails.logger.info '------KaiFu D0 B001------'
       Rails.logger.info 'data = ' + js.to_json.to_s
@@ -85,11 +110,11 @@ module Biz
       Rails.logger.info 'resp.body.class = ' + resp.body.class.to_s
 =end
       if resp.is_a?(Net::HTTPRedirection)
-        j = {resp_code: '00', resp_desc: '交易成功', status: 8, redirect_url: resp['location']}
+        j = {resp_code: '00', resp_desc: '交易成功', redirect_url: resp['location']}
       elsif resp.is_a?(Net::HTTPOK)
         j = {resp_code: '99', resp_desc: resp.body.to_s.force_encoding("UTF-8")}
       else
-        j = {resp_code: '96', resp_desc: '系统故障', status: 7}
+        j = {resp_code: '96', resp_desc: '系统故障'}
       end
       j
     end

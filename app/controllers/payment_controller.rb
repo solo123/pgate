@@ -1,6 +1,5 @@
 class PaymentController < ApplicationController
   def pay
-    biz = Biz::PaymentBiz.new
     begin
       para_js = JSON.parse(params['data'])
     rescue
@@ -9,6 +8,7 @@ class PaymentController < ApplicationController
       return
     end
 
+    biz = Biz::PaymentBiz.new
     js = biz.check_required_params(para_js)
     if js[:resp_code] != '00'
       render json: js
