@@ -56,30 +56,33 @@ module Biz
     end
     def create_kaifu_payment(client_payment, js)
       kf_js = kaifu_api_format(js)
-      js[:mac] = kf_js["mac"] = get_mac(kf_js, client_payment.trans_type)
+      mac = js[:mac] = kf_js["mac"] = get_mac(kf_js, client_payment.trans_type)
       gw = KaifuGateway.new(js)
       gw.client_payment = client_payment
       gw.save
 
       ret_js = send_kaifu(kf_js, client_payment.trans_type)
       ret_js[:status] = (ret_js[:resp_code] == '00') ? 8 : 7
-      client_payment.update(ret_js)
+      client_payment.attributes = {
+        resp_code: ret_js[:resp_code],
+        resp_desc: ret_js[:resp_desc],
+        img_url: ret_js[:img_url]
+      }
       gw.update(ret_js)
       ret_js
     end
 
     def get_mac(js, trans_type)
+      mab = get_mab(js)
       case trans_type
       when 'P001'
-        Digest::MD5.hexdigest(get_mab(js) + TMK)
+        Digest::MD5.hexdigest(mab + TMK)
       when 'P002'
-        Digest::MD5.hexdigest(get_mab(js) + TMK)
+        Digest::MD5.hexdigest(mab + TMK)
       when 'P003'
-        biz = Biz::PosEncrypt.new
-        biz.kaifu_mac(mab, get_mackey)
+        kaifu_mac(mab, get_mackey)
       when 'P004'
-        biz = Biz::PosEncrypt.new
-        biz.kaifu_mac(mab, get_mackey)
+        kaifu_mac(mab, get_mackey)
       else
         ''
       end
@@ -87,11 +90,15 @@ module Biz
 
     def get_mab(js)
       mab = ''
-      js.keys.sort.each {|k| mab << js[k] if k != 'mac' && js[k] }
+      js.keys.sort.each {|k| mab << js[k] if k.to_s != 'mac' && js[k] }
       mab
     end
     def get_mackey
-      '1234567890abcdef'
+      biz = Biz::PosEncrypt.new
+      mac_key = KaifuSignin.last.terminal_info
+      key = biz.e_mak_decrypt([mac_key].pack('H*'), TMK)
+      puts "terminal_info=" + mac_key
+      key.unpack('H*')[0].upcase
     end
 
     def send_kaifu(js, trans_type)
@@ -102,7 +109,8 @@ module Biz
       end
       resp = Net::HTTP.post_form(uri, data: js.to_json)
 =begin
-      Rails.logger.info '------KaiFu D0 B001------'
+      Rails.logger.level = 0
+      Rails.logger.info '------KaiFu------'
       Rails.logger.info 'data = ' + js.to_json.to_s
       Rails.logger.info 'resp = ' + resp.to_s
       Rails.logger.info 'resp = ' + resp.to_hash.to_s
@@ -112,17 +120,37 @@ module Biz
       if resp.is_a?(Net::HTTPRedirection)
         j = {resp_code: '00', resp_desc: '交易成功', redirect_url: resp['location']}
       elsif resp.is_a?(Net::HTTPOK)
-        j = {resp_code: '99', resp_desc: resp.body.to_s.force_encoding("UTF-8")}
+        begin
+          body_txt = resp.body.force_encoding('UTF-8')
+          j = js_to_app_format JSON.parse(body_txt)
+          j.symbolize_keys!
+          j[:resp_desc] = '[server] ' + j[:resp_desc]
+        rescue => e
+          j = {resp_code: '99', resp_desc: "ERROR: #{e.message}\n#{body_txt}"}
+        end
       else
-        j = {resp_code: '96', resp_desc: '系统故障'}
+        j = {resp_code: '96', resp_desc: '系统故障:' + resp.to_s + "\n" + resp.to_hash.to_s}
       end
       j
     end
 
     def kaifu_api_format(js)
       r = {}
-      js.keys.sort.each {|k| r[k.to_s.camelize(:lower)] = js[k].to_s}
+      js.keys.each {|k| r[k.to_s.camelize(:lower)] = js[k].to_s}
       r
     end
+    def js_to_app_format(js)
+      r = {}
+      js.keys.each {|k| r[k.to_s.underscore] = js[k].to_s}
+      r
+    end
+
+    def kaifu_mac(mab, key)
+      mab = mab.encode('GBK')
+      biz = Biz::PosEncrypt.new
+      r = biz.pos_mac(mab, key)
+      r.unpack('H*')[0][0..7].upcase
+    end
+
   end
 end

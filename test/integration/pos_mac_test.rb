@@ -8,6 +8,13 @@ class PosMacTest < ActionDispatch::IntegrationTest
     r = biz.e_mak(data, key_str)
     assert_equal '15C481BEC8A7155890694EBEAC00489F', r.unpack('H*')[0].upcase
   end
+  test "e_mak_decrypt解密算法" do
+    biz = Biz::PosEncrypt.new
+    data = ["15C481BEC8A7155890694EBEAC00489F"].pack('H*')
+    key_str = "BA213DD564BBE85DDB62942364FBE85D"
+    r = biz.e_mak_decrypt(data, key_str)
+    assert_equal 'BF3523B8E3845CB5300D97F976AF0A39', r.unpack('H*')[0].upcase
+  end
 =begin
   数据报文：
   0x 1234567890ABCDEFABCDEF1234567890   //$body
@@ -44,11 +51,5 @@ class PosMacTest < ActionDispatch::IntegrationTest
     assert_equal ['9FDE90A34CF73B2E'].pack('H*'), biz.e_mak(s, key)
   end
 
-  test "POS MAC算法" do
-    mab = "20160913201609132016091320160913"
-    key = "AB73C9416D41E936E82AAC11053BCEDD"
-    biz = Biz::PosEncrypt.new
-    mac = biz.kaifu_mac(mab, key)
-    assert_equal '33303237', mac
-  end
+
 end

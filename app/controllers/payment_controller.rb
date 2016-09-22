@@ -20,15 +20,13 @@ class PaymentController < ApplicationController
     payment.save
 
     js = payment.check_payment_fields
-    payment.save
-
     if js[:resp_code] != '00'
       render json: js
     else
       biz = Biz::KaifuApi.new
-      biz.send_kaifu_payment(payment)
-      payment.reload
-      render json: {resp_code: payment.resp_code, resp_desc: payment.resp_desc, redirect_url: payment.redirect_url}
+      ret_js = biz.send_kaifu_payment(payment)
+      payment.save if payment.changed?
+      render json: ret_js
     end
   end
 
