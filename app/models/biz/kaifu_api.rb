@@ -108,7 +108,7 @@ module Biz
       elsif resp.is_a?(Net::HTTPOK)
         begin
           body_txt = resp.body.force_encoding('UTF-8')
-          j = js_to_app_format JSON.parse(body_txt).symbolize_keys
+          j = js_to_app_format(JSON.parse(body_txt)).symbolize_keys
           j[:resp_desc] = '[server] ' + j[:resp_desc]
         rescue => e
           j = {resp_code: '99', resp_desc: "ERROR: #{e.message}\n#{body_txt}"}
