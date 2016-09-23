@@ -1,0 +1,14 @@
+default: &default
+  org_id_b0: puerhanda
+  tmk_b0: 9DB9095654D1FA7763F32E6B4E922140
+  openid_api_url: http://61.135.202.242/payform/organization_ymf
+  query_url: http://61.135.202.242:8022/payform/organization
+  app_api_url: http://61.135.202.242:8020/payform/organization
+  pooul_notify_url: http://112.74.184.236:8010/recv_notify
+
+production:
+  <<: *default
+development:
+  <<: *default
+test:
+  <<: *default

@@ -29,5 +29,7 @@ module Pgate
     config.action_controller.permit_all_parameters = true
     config.logger = Logger.new(STDOUT)
     config.log_level = :warn
+
+    config.kaifu = config_for :kaifu
   end
 end
