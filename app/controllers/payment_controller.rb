@@ -1,7 +1,7 @@
 class PaymentController < ApplicationController
   def pay
     begin
-      para_js = JSON.parse(params[:data]).symbolize_keys
+      para_js = JSON.parse(params[:data].force_encoding('UTF-8')).symbolize_keys
     rescue
       render json: {resp_code: '30', resp_desc: '数据格式错误'}
       return
