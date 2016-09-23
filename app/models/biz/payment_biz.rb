@@ -16,7 +16,7 @@ module Biz
         mab = ''
         params.keys.sort.each do |fld|
           if fld != :mac
-            mab << params[fld]
+            mab << params[fld].to_s
           end
         end
         mac = Digest::MD5.hexdigest(mab + client.tmk).upcase
