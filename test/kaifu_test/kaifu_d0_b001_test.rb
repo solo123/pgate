@@ -5,8 +5,8 @@ class KaifuD0B001Test < ActionDispatch::IntegrationTest
     Biz::KaifuApi.any_instance.stubs(:send_kaifu).returns({resp_code: '00', redirect_url: 'https://open.weixin.qq.com/mock'})
     tmk = '9DB9095654D1FA7763F32E6B4E922140'
     js = {
-      send_time: "20160920155010",
-      send_seq_id: "T0100002",
+      send_time: Time.now.strftime("%Y%m%d%H%M%S"),
+      send_seq_id: "TST" + Time.now.to_i.to_s,
       trans_type: 'B001',
       organization_id: 'puerhanda',
       pay_pass: '1',
@@ -21,8 +21,11 @@ class KaifuD0B001Test < ActionDispatch::IntegrationTest
     }
     biz = Biz::KaifuApi.new
     kf_js = biz.kaifu_api_format(js)
-    kf_js[:mac] = biz.get_mac(kf_js, tmk)
+    kf_js[:mac] = biz.get_mac(kf_js, 'P001')
 
-    ret_js = biz.send_kaifu(kf_js)
+    ret_js = biz.send_kaifu(kf_js, 'P001')
+    #puts '---------------------'
+    #puts 'js: ' + kf_js.to_s
+    #puts 'ret_js:' + ret_js.to_s
   end
 end
