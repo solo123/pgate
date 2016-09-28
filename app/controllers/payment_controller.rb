@@ -17,8 +17,7 @@ class PaymentController < ApplicationController
       return
     end
 
-    biz = Biz::KaifuApi.new
-    ret_js = biz.send_kaifu_payment(payment)
+    ret_js = Biz::KaifuApi.send_kaifu_payment(payment)
     payment.save if payment.changed?
     render json: ret_js
   end

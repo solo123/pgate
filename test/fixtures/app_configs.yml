@@ -1,0 +1,18 @@
+one:
+  group: kaifu.user.d0.skey
+  val: 1234567890abcdef
+two:
+  group: kaifu.user.t1.skey
+  val: 1234567890abcdef
+three:
+  group: kaifu.user.d0.tmk
+  val: 1234567890abcdef
+four:
+  group: kaifu.user.t1.tmk
+  val: 1234567890abcdef
+five:
+  group: kaifu.api.openid.pay_url
+  val: 'http://localhost'
+six:
+  group: kaifu.api.app.pay_url
+  val: 'http://localhost'

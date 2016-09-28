@@ -30,6 +30,6 @@ module Pgate
     config.logger = Logger.new(STDOUT)
     config.log_level = :warn
 
-    config.kaifu = config_for :kaifu
+    #config.kaifu = config_for :kaifu
   end
 end

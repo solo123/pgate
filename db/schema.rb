@@ -10,7 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160925160029) do
+ActiveRecord::Schema.define(version: 20160928053026) do
+
+  create_table "app_configs", force: :cascade do |t|
+    t.string   "group"
+    t.string   "name"
+    t.string   "val"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "client_payments", force: :cascade do |t|
     t.integer  "client_id"
@@ -149,8 +157,9 @@ ActiveRecord::Schema.define(version: 20160925160029) do
     t.string   "resp_code"
     t.string   "resp_desc"
     t.string   "mac"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+    t.integer  "client_payment_id"
     t.index ["client_id"], name: "index_payment_queries_on_client_id"
   end
 

@@ -44,8 +44,12 @@ class P001Test < ActionDispatch::IntegrationTest
     assert_equal '1234567890abcdef', client.tmk
   end
 
+  test 'appconfig初始值' do
+    assert_equal '1234567890abcdef', AppConfig.get('kaifu.user.d0.skey')
+  end
+
   test 'P001 成功提交' do
-    Biz::KaifuApi.any_instance.stubs(:send_kaifu).returns({resp_code: '00', redirect_url: 'https://open.weixin.qq.com/mock'})
+    Biz::KaifuApi.stubs(:send_kaifu).returns({resp_code: '00', redirect_url: 'https://open.weixin.qq.com/mock'})
     params = {
       org_id: 'pooul',
       trans_type: 'P001',
@@ -84,7 +88,7 @@ class P001Test < ActionDispatch::IntegrationTest
   end
 
   test 'P001 手续费过低' do
-    Biz::KaifuApi.any_instance.stubs(:send_kaifu).returns({resp_code: '00', redirect_url: 'https://open.weixin.qq.com/mock'})
+    Biz::KaifuApi.stubs(:send_kaifu).returns({resp_code: '00', redirect_url: 'https://open.weixin.qq.com/mock'})
     params = {
       org_id: 'pooul',
       trans_type: 'P001',

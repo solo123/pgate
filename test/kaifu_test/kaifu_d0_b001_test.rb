@@ -19,9 +19,8 @@ class KaifuD0B001Test < ActionDispatch::IntegrationTest
       callback_url: 'http://www.pooul.cn'
     }
     tmk = '674CDA1B7D9866FA5398D2CE126C105B'
-    biz = Biz::KaifuApi.new
-    mab = biz.get_mab(js)
-    js[:mac] = Digest::MD5.hexdigest(mab + tmk)
+    mab = Biz::PubEncrypt.get_mab(js)
+    js[:mac] = Biz::PubEncrypt.md5(mab + tmk)
     uri = URI('http://112.74.184.236:8008/payment')
     #uri = URI('http://localhost:8008/payment')
 =begin
@@ -33,7 +32,7 @@ class KaifuD0B001Test < ActionDispatch::IntegrationTest
 =end
   end
   test "send D0 B001" do
-    Biz::KaifuApi.any_instance.stubs(:send_kaifu).returns({resp_code: '00', redirect_url: 'https://open.weixin.qq.com/mock'})
+    Biz::KaifuApi.stubs(:send_kaifu).returns({resp_code: '00', redirect_url: 'https://open.weixin.qq.com/mock'})
     js = {
       send_time: Time.now.strftime("%Y%m%d%H%M%S"),
       send_seq_id: "TST" + Time.now.to_i.to_s,
@@ -49,11 +48,10 @@ class KaifuD0B001Test < ActionDispatch::IntegrationTest
       notify_url: 'http://112.74.184.236:8010/recv_notify',
       callback_url: 'http://www.pooul.cn'
     }
-    biz = Biz::KaifuApi.new
-    kf_js = biz.kaifu_api_format(js)
-    kf_js[:mac] = biz.get_mac(kf_js, 'P001')
+    kf_js = Biz::KaifuApi.js_to_kaifu_format(js)
+    kf_js[:mac] = Biz::KaifuApi.get_mac(kf_js, 'P001')
 
-    ret_js = biz.send_kaifu(kf_js, 'P001')
+    ret_js = Biz::KaifuApi.send_kaifu(kf_js, 'P001')
     #puts '---------------------'
     #puts 'js: ' + kf_js.to_s
     #puts 'ret_js:' + ret_js.to_s

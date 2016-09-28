@@ -2,18 +2,18 @@ require 'test_helper'
 
 class PosMacTest < ActionDispatch::IntegrationTest
   test "e_mak加密算法" do
-    biz = Biz::PosEncrypt.new
     data = ["BF3523B8E3845CB5300D97F976AF0A39"].pack('H*')
     key_str = "BA213DD564BBE85DDB62942364FBE85D"
-    r = biz.e_mak(data, key_str)
-    assert_equal '15C481BEC8A7155890694EBEAC00489F', r.unpack('H*')[0].upcase
+    r = Biz::PosEncrypt.e_mak(data, key_str)
+    r = r.unpack('H*')[0].upcase
+    assert_equal '15C481BEC8A7155890694EBEAC00489F', r
   end
   test "e_mak_decrypt解密算法" do
-    biz = Biz::PosEncrypt.new
     data = ["15C481BEC8A7155890694EBEAC00489F"].pack('H*')
     key_str = "BA213DD564BBE85DDB62942364FBE85D"
-    r = biz.e_mak_decrypt(data, key_str)
-    assert_equal 'BF3523B8E3845CB5300D97F976AF0A39', r.unpack('H*')[0].upcase
+    r = Biz::PosEncrypt.e_mak_decrypt(data, key_str)
+    r = r.unpack('H*')[0].upcase
+    assert_equal 'BF3523B8E3845CB5300D97F976AF0A39', r
   end
 =begin
   数据报文：
@@ -33,22 +33,19 @@ class PosMacTest < ActionDispatch::IntegrationTest
   test "POS MAC加密算法" do
     mab = ['1234567890ABCDEFABCDEF1234567890'].pack('H*')
     key = '2222222222222222'
-    biz = Biz::PosEncrypt.new
-    mac = biz.pos_mac(mab, key)
+    mac = Biz::PosEncrypt.pos_mac(mab, key)
     assert_equal 'E267B6E2', mac
   end
 
   test "data xor in 8 bytes" do
     s = ['1234567890ABCDEFABCDEF1234567890'].pack('H*')
-    biz = Biz::PosEncrypt.new
-    assert_equal ['B9F9B96AA4FDB57F'].pack('H*'), biz.xor_8(s)
+    assert_equal ['B9F9B96AA4FDB57F'].pack('H*'), Biz::PosEncrypt.xor_8(s)
   end
 
   test "encrypt_mak " do
     s = ['4239463942393641'].pack('H*')
     key = '2222222222222222'
-    biz = Biz::PosEncrypt.new
-    assert_equal ['9FDE90A34CF73B2E'].pack('H*'), biz.e_mak(s, key)
+    assert_equal ['9FDE90A34CF73B2E'].pack('H*'), Biz::PosEncrypt.e_mak(s, key)
   end
 
 
