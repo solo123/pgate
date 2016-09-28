@@ -39,6 +39,10 @@ class P001Test < ActionDispatch::IntegrationTest
     body = JSON.parse(response.body)
     assert_equal 'A0', body['resp_code']
   end
+  test "client TMK" do
+    client = Client.find_by(org_id: 'pooul')
+    assert_equal '1234567890abcdef', client.tmk
+  end
 
   test 'P001 成功提交' do
     Biz::KaifuApi.any_instance.stubs(:send_kaifu).returns({resp_code: '00', redirect_url: 'https://open.weixin.qq.com/mock'})
@@ -57,9 +61,7 @@ class P001Test < ActionDispatch::IntegrationTest
       notify_url: 'http://myapps.com/nitify',
       callback_url: 'http://mobileapp.com/callback'
     }
-    client = Client.find_by(org_id: params[:org_id])
-    biz = Biz::PubEncrypt.new
-    params[:mac] = biz.md5_mac(params, client.tmk)
+    params[:mac] = Biz::PaymentBiz.get_client_mac(params)
     post payment_url, params: {data: params.to_json}
     assert_response :success
     j = JSON.parse(response.body)
@@ -98,9 +100,7 @@ class P001Test < ActionDispatch::IntegrationTest
       notify_url: 'http://myapps.com/nitify',
       callback_url: 'http://mobileapp.com/callback'
     }
-    client = Client.find_by(org_id: params[:org_id])
-    biz = Biz::PubEncrypt.new
-    params[:mac] = biz.md5_mac(params, client.tmk)
+    params[:mac] = Biz::PaymentBiz.get_client_mac(params)
     post payment_url, params: {data: params.to_json}
     assert_response :success
     j = JSON.parse(response.body)

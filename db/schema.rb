@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160920065457) do
+ActiveRecord::Schema.define(version: 20160925160029) do
 
   create_table "client_payments", force: :cascade do |t|
     t.integer  "client_id"
@@ -74,7 +74,55 @@ ActiveRecord::Schema.define(version: 20160920065457) do
     t.datetime "created_at",                    null: false
     t.datetime "updated_at",                    null: false
     t.string   "redirect_url"
+    t.string   "response_text"
     t.index ["client_payment_id"], name: "index_kaifu_gateways_on_client_payment_id"
+  end
+
+  create_table "kaifu_queries", force: :cascade do |t|
+    t.integer  "payment_query_id"
+    t.string   "send_time"
+    t.string   "send_seq_id"
+    t.string   "trans_type"
+    t.string   "organization_id"
+    t.string   "org_send_seq_id"
+    t.string   "trans_time"
+    t.string   "pay_result"
+    t.string   "pay_desc"
+    t.string   "t0_pay_result"
+    t.string   "t0_pay_desc"
+    t.string   "resp_code"
+    t.string   "resp_desc"
+    t.string   "mac"
+    t.string   "response_text"
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
+    t.index ["payment_query_id"], name: "index_kaifu_queries_on_payment_query_id"
+  end
+
+  create_table "kaifu_results", force: :cascade do |t|
+    t.integer  "client_id"
+    t.integer  "client_payment_id"
+    t.string   "send_time"
+    t.string   "send_seq_id"
+    t.string   "organization_id"
+    t.string   "org_send_seq_id"
+    t.integer  "trans_amt"
+    t.integer  "fee"
+    t.string   "pay_result"
+    t.string   "pay_desc"
+    t.string   "t0_resp_code"
+    t.string   "t0_resp_desc"
+    t.string   "resp_code"
+    t.string   "resp_desc"
+    t.string   "mac"
+    t.string   "notify_url"
+    t.integer  "notify_status",     default: 0
+    t.datetime "notify_time"
+    t.integer  "status",            default: 0
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+    t.index ["client_id"], name: "index_kaifu_results_on_client_id"
+    t.index ["client_payment_id"], name: "index_kaifu_results_on_client_payment_id"
   end
 
   create_table "kaifu_signins", force: :cascade do |t|
@@ -88,6 +136,22 @@ ActiveRecord::Schema.define(version: 20160920065457) do
     t.integer  "status",          default: 0
     t.datetime "created_at",                  null: false
     t.datetime "updated_at",                  null: false
+  end
+
+  create_table "payment_queries", force: :cascade do |t|
+    t.integer  "client_id"
+    t.string   "org_id"
+    t.string   "query_type"
+    t.string   "order_time"
+    t.string   "order_id"
+    t.string   "pay_result"
+    t.string   "pay_desc"
+    t.string   "resp_code"
+    t.string   "resp_desc"
+    t.string   "mac"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["client_id"], name: "index_payment_queries_on_client_id"
   end
 
   create_table "recv_posts", force: :cascade do |t|
