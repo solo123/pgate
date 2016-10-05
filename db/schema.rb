@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160928053026) do
+ActiveRecord::Schema.define(version: 20161001165947) do
 
   create_table "app_configs", force: :cascade do |t|
     t.string   "group"
@@ -44,7 +44,13 @@ ActiveRecord::Schema.define(version: 20160928053026) do
     t.string   "resp_code"
     t.string   "resp_desc"
     t.string   "redirect_url"
+    t.string   "pay_code"
+    t.string   "pay_desc"
+    t.string   "t0_code"
+    t.string   "t0_desc"
     t.index ["client_id"], name: "index_client_payments_on_client_id"
+    t.index ["order_id"], name: "index_client_payments_on_order_id"
+    t.index ["org_id"], name: "index_client_payments_on_org_id"
   end
 
   create_table "clients", force: :cascade do |t|
@@ -83,7 +89,13 @@ ActiveRecord::Schema.define(version: 20160928053026) do
     t.datetime "updated_at",                    null: false
     t.string   "redirect_url"
     t.string   "response_text"
+    t.string   "pay_code"
+    t.string   "pay_desc"
+    t.string   "t0_code"
+    t.string   "t0_desc"
     t.index ["client_payment_id"], name: "index_kaifu_gateways_on_client_payment_id"
+    t.index ["organization_id"], name: "index_kaifu_gateways_on_organization_id"
+    t.index ["send_seq_id"], name: "index_kaifu_gateways_on_send_seq_id"
   end
 
   create_table "kaifu_queries", force: :cascade do |t|
@@ -129,8 +141,12 @@ ActiveRecord::Schema.define(version: 20160928053026) do
     t.integer  "status",            default: 0
     t.datetime "created_at",                    null: false
     t.datetime "updated_at",                    null: false
+    t.integer  "kaifu_gateway_id"
+    t.string   "sender_type"
+    t.integer  "sender_id"
     t.index ["client_id"], name: "index_kaifu_results_on_client_id"
     t.index ["client_payment_id"], name: "index_kaifu_results_on_client_payment_id"
+    t.index ["sender_type", "sender_id"], name: "index_kaifu_results_on_sender_type_and_sender_id"
   end
 
   create_table "kaifu_signins", force: :cascade do |t|
@@ -144,6 +160,18 @@ ActiveRecord::Schema.define(version: 20160928053026) do
     t.integer  "status",          default: 0
     t.datetime "created_at",                  null: false
     t.datetime "updated_at",                  null: false
+  end
+
+  create_table "notifies", force: :cascade do |t|
+    t.string   "sender_type"
+    t.integer  "sender_id"
+    t.string   "data"
+    t.string   "notify_url"
+    t.text     "message"
+    t.integer  "status",      default: 0
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
+    t.index ["sender_type", "sender_id"], name: "index_notifies_on_sender_type_and_sender_id"
   end
 
   create_table "payment_queries", force: :cascade do |t|
@@ -163,6 +191,17 @@ ActiveRecord::Schema.define(version: 20160928053026) do
     t.index ["client_id"], name: "index_payment_queries_on_client_id"
   end
 
+  create_table "recv1_posts", force: :cascade do |t|
+    t.string   "method"
+    t.string   "remote_host"
+    t.string   "header"
+    t.string   "params"
+    t.text     "detail"
+    t.integer  "status",      default: 0
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
+  end
+
   create_table "recv_posts", force: :cascade do |t|
     t.string   "method"
     t.string   "remote_host"
@@ -172,6 +211,8 @@ ActiveRecord::Schema.define(version: 20160928053026) do
     t.integer  "status",      default: 0
     t.datetime "created_at",              null: false
     t.datetime "updated_at",              null: false
+    t.string   "data"
+    t.string   "message"
   end
 
   create_table "users", force: :cascade do |t|
