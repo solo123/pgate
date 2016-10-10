@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161001165947) do
+ActiveRecord::Schema.define(version: 20161010083640) do
 
   create_table "app_configs", force: :cascade do |t|
     t.string   "group"
@@ -18,6 +18,17 @@ ActiveRecord::Schema.define(version: 20161001165947) do
     t.string   "val"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "biz_errors", force: :cascade do |t|
+    t.string   "error_source_type"
+    t.integer  "error_source_id"
+    t.string   "code"
+    t.string   "message"
+    t.text     "detail"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+    t.index ["error_source_type", "error_source_id"], name: "index_biz_errors_on_error_source_type_and_error_source_id"
   end
 
   create_table "client_payments", force: :cascade do |t|
@@ -48,6 +59,8 @@ ActiveRecord::Schema.define(version: 20161001165947) do
     t.string   "pay_desc"
     t.string   "t0_code"
     t.string   "t0_desc"
+    t.string   "remote_ip"
+    t.string   "uni_order_id"
     t.index ["client_id"], name: "index_client_payments_on_client_id"
     t.index ["order_id"], name: "index_client_payments_on_order_id"
     t.index ["org_id"], name: "index_client_payments_on_org_id"
@@ -180,7 +193,7 @@ ActiveRecord::Schema.define(version: 20161001165947) do
     t.string   "query_type"
     t.string   "order_time"
     t.string   "order_id"
-    t.string   "pay_result"
+    t.string   "pay_code"
     t.string   "pay_desc"
     t.string   "resp_code"
     t.string   "resp_desc"
@@ -188,7 +201,22 @@ ActiveRecord::Schema.define(version: 20161001165947) do
     t.datetime "created_at",        null: false
     t.datetime "updated_at",        null: false
     t.integer  "client_payment_id"
+    t.string   "t0_code"
+    t.string   "t0_desc"
     t.index ["client_id"], name: "index_payment_queries_on_client_id"
+  end
+
+  create_table "post_data", force: :cascade do |t|
+    t.string   "sender_type"
+    t.integer  "sender_id"
+    t.string   "url"
+    t.string   "data"
+    t.string   "response"
+    t.string   "body"
+    t.text     "error_message"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+    t.index ["sender_type", "sender_id"], name: "index_post_data_on_sender_type_and_sender_id"
   end
 
   create_table "recv1_posts", force: :cascade do |t|

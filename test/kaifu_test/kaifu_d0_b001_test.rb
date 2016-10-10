@@ -31,29 +31,12 @@ class KaifuD0B001Test < ActionDispatch::IntegrationTest
     puts 'body: ' + resp.body.to_s
 =end
   end
-  test "send D0 B001" do
-    Biz::KaifuApi.stubs(:send_kaifu).returns({resp_code: '00', redirect_url: 'https://open.weixin.qq.com/mock'})
-    js = {
-      send_time: Time.now.strftime("%Y%m%d%H%M%S"),
-      send_seq_id: "TST" + Time.now.to_i.to_s,
-      trans_type: 'B001',
-      organization_id: 'puerhanda',
-      pay_pass: '1',
-      trans_amt: '1000',
-      fee: '33',
-      card_no: '2345123412341234',
-      name: 'liangyihua',
-      id_num: '450101198001010011',
-      body: "test-product01",
-      notify_url: 'http://112.74.184.236:8010/recv_notify',
-      callback_url: 'http://www.pooul.cn'
-    }
-    kf_js = Biz::KaifuApi.js_to_kaifu_format(js)
-    kf_js[:mac] = Biz::KaifuApi.get_mac(kf_js, 'P001')
 
-    ret_js = Biz::KaifuApi.send_kaifu(kf_js, 'P001')
-    #puts '---------------------'
-    #puts 'js: ' + kf_js.to_s
-    #puts 'ret_js:' + ret_js.to_s
+  test "send D0 B001" do
+    #Biz::WebBiz.stubs(:post_data).returns()
+    Biz::KaifuApi.stubs(:send_kaifu).returns({resp_code: '00', redirect_url: 'https://open.weixin.qq.com/mock'})
+    k = kaifu_gateways(:one)
+    js = Biz::KaifuApi.send_kaifu(k)
+    assert_equal '00', js[:resp_code]
   end
 end
