@@ -13,7 +13,49 @@ one:
   card_no: '6225886556455713'
   card_holder_name: 梁益华
   person_id_num: '450303197005030016'
-  notify_url: http://112.74.184.236:8080/recv_notify
+  notify_url: http://112.74.184.236:8011/recv_notify
+  callback_url: http://a.pooulcloud.cn/test_pages/pay
+  mac: 335cf2d25e05d7985ad2fa99f0938d32
+  finish_time:
+  status: 0
+  uni_order_id: pooul-20160923-TST1474628044
+t_p001:
+  id: 91
+  client_id: 1
+  org_id: pooul
+  trans_type: P001
+  order_time: '20160923105404'
+  order_id: TST1474628044
+  order_title: 测试商品
+  pay_pass: '1'
+  img_url:
+  amount: 1000
+  fee: 33
+  card_no: '6225886556455713'
+  card_holder_name: 梁益华
+  person_id_num: '450303197005030016'
+  notify_url: http://112.74.184.236:8011/recv_notify
+  callback_url: http://a.pooulcloud.cn/test_pages/pay
+  mac: 335cf2d25e05d7985ad2fa99f0938d32
+  finish_time:
+  status: 0
+  uni_order_id: pooul-20160923-TST1474628044
+t_p002:
+  id: 92
+  client_id: 1
+  org_id: pooul
+  trans_type: P002
+  order_time: '20160923105404'
+  order_id: TST1474628044
+  order_title: 测试商品
+  pay_pass: '1'
+  img_url:
+  amount: 1000
+  fee: 33
+  card_no: '6225886556455713'
+  card_holder_name: 梁益华
+  person_id_num: '450303197005030016'
+  notify_url: http://112.74.184.236:8011/recv_notify
   callback_url: http://a.pooulcloud.cn/test_pages/pay
   mac: 335cf2d25e05d7985ad2fa99f0938d32
   finish_time:
