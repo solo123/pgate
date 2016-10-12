@@ -49,7 +49,7 @@ class P001Test < ActionDispatch::IntegrationTest
   end
 
   test 'P001 成功提交' do
-    Biz::KaifuApi.stubs(:send_kaifu).returns({resp_code: '00', redirect_url: 'https://open.weixin.qq.com/mock'})
+    Biz::WebBiz.stubs(:post_data).returns({resp_code: '00', redirect_url: 'https://open.weixin.qq.com/mock'})
     params = {
       org_id: 'pooul',
       trans_type: 'P001',
@@ -69,6 +69,7 @@ class P001Test < ActionDispatch::IntegrationTest
     post payment_url, params: {data: params.to_json}
     assert_response :success
     j = JSON.parse(response.body)
+
     assert_equal '00', j['resp_code']
     assert_match /^https:\/\/open.weixin.qq.com/, j['redirect_url']
   end

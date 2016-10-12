@@ -61,3 +61,21 @@ t_p002:
   finish_time:
   status: 0
   uni_order_id: pooul-20160923-TST1474628044
+
+tfb_1:
+  id: 187
+  client_id: 1
+  org_id: pooul
+  trans_type: T001
+  order_time: '20161012212106'
+  order_id: TST1476278466
+  order_title: TST商品
+  pay_pass: '1'
+  amount: 1000
+  fee: 0
+  notify_url: http://112.74.184.236:8010/notify/kaifu_test_test
+  callback_url: http://a.pooulcloud.cn/test_pages/pay
+  mac: e1b7f3311ead7d35ab272b3a09a37526
+  status: 0
+  remote_ip: "::1"
+  uni_order_id: pooul_test-20161012-TST1476278466
