@@ -15,7 +15,7 @@ class KaifuD0B001Test < ActionDispatch::IntegrationTest
       card_no: '2345123412341234',
       card_holder_name: 'liangyihua',
       person_id_num: '450101198001010011',
-      notify_url: 'http://112.74.184.236:8010/recv_notify',
+      notify_url: 'http://112.74.184.236:8011/recv_notify',
       callback_url: 'http://www.pooul.cn'
     }
     tmk = '674CDA1B7D9866FA5398D2CE126C105B'
