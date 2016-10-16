@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161012071542) do
+ActiveRecord::Schema.define(version: 20161013105652) do
 
   create_table "app_configs", force: :cascade do |t|
     t.string   "group"
@@ -61,6 +61,9 @@ ActiveRecord::Schema.define(version: 20161012071542) do
     t.string   "t0_desc"
     t.string   "remote_ip"
     t.string   "uni_order_id"
+    t.integer  "notify_times",     default: 0
+    t.integer  "notify_status",    default: 0
+    t.datetime "last_notify"
     t.index ["client_id"], name: "index_client_payments_on_client_id"
     t.index ["order_id"], name: "index_client_payments_on_order_id"
     t.index ["org_id"], name: "index_client_payments_on_org_id"
