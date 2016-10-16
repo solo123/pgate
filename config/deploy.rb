@@ -55,7 +55,6 @@ task :pull => :environment do
   queue  %{cp ../secrets.yml config}
 
   queue! %{bundle install --without development test}
-  queue! %{RAILS_ENV=production rails assets:precompile}
 
   queue  %[echo "-----> restart puma"]
   queue  %{touch /home/rb/tmp/pids/pgate.state}
