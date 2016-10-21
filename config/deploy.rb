@@ -55,6 +55,7 @@ task :deploy do
     # Put things that will set up an empty directory into a fully set-up
     # instance of your project.
     invoke :'git:clone'
+    invoke :clean_shared_files
     invoke :'deploy:link_shared_paths'
     invoke :'bundle:install'
     #invoke :'rails:db_migrate'
@@ -63,7 +64,7 @@ task :deploy do
 
     on :launch do
       in_path(fetch(:current_path)) do
-        command %{pumactl restart}
+        command %{pumactl --state /home/rb/tmp/pids/puma-pgate.state restart}
       end
     end
   end
@@ -71,6 +72,9 @@ task :deploy do
 
   # you can use `run :local` to run tasks on local machine before of after the deploy scripts
   # run :local { say 'done' }
+end
+task :clean_shared_files do
+  command %{rm config/database.yml config/puma.rb config/secrets.yml}
 end
 
 task :test do
