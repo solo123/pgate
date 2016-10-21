@@ -22,7 +22,7 @@ set :branch, 'deploy'
 
 # They will be linked in the 'deploy:link_shared_paths' step.
 # set :shared_dirs, fetch(:shared_dirs, []).push('config')
-set :shared_files, fetch(:shared_files, []).push('config/database.yml', 'config/secrets.yml')
+set :shared_files, fetch(:shared_files, []).push('config/database.yml', 'config/secrets.yml', 'config/puma.rb')
 
 # This task is the environment that is loaded all remote run commands, such as
 # `mina deploy` or `mina rake`.
@@ -42,8 +42,8 @@ task :setup do
   in_path './work' do
     command %{pwd}
     command %{cp -R pgate_shared/config #{fetch(:deploy_to)}/shared}
-    command %{sed -i '1 a \\ \\ secret_key_base: #{SecureRandom.hex(64)}' #{fetch(:deploy_to)}/shared/config/secrets.yml}
-    command %{sed -i '1 a app_name="pgate"' #{fetch(:deploy_to)}/shared/config/puma.rb}
+    command %{sed -i 's/SECRET/#{SecureRandom.hex(64)}/g' #{fetch(:deploy_to)}/shared/config/secrets.yml}
+    command %{sed -i '1s/APP_NAME/pgate/1' #{fetch(:deploy_to)}/shared/config/puma.rb}
   end
 end
 
