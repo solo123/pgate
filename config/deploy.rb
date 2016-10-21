@@ -42,7 +42,7 @@ task :setup do
   in_path './work' do
     command %{pwd}
     command %{cp -R pgate_shared/config #{fetch(:deploy_to)}/shared}
-    command %{sed -i '1 a \\ \\ secrets_key_base: #{SecureRandom.hex(64)}' #{fetch(:deploy_to)}/shared/config/secrets.yml}
+    command %{sed -i '1 a \\ \\ secret_key_base: #{SecureRandom.hex(64)}' #{fetch(:deploy_to)}/shared/config/secrets.yml}
     command %{sed -i '1 a app_name="pgate"' #{fetch(:deploy_to)}/shared/config/puma.rb}
   end
 end
@@ -57,25 +57,28 @@ task :deploy do
     invoke :'git:clone'
     invoke :'deploy:link_shared_paths'
     invoke :'bundle:install'
-    invoke :'rails:db_migrate'
-    invoke :'rails:assets_precompile'
+    #invoke :'rails:db_migrate'
+    #invoke :'rails:assets_precompile'
     invoke :'deploy:cleanup'
 
     on :launch do
       in_path(fetch(:current_path)) do
         command %{pumactl restart}
       end
-      run :local do
-        command %{echo "====== test after pull ======"}
-        command %{curl -X POST -d 'a=1' http://a.pooulcloud.cn:8008/payment}
-      end
     end
   end
+
 
   # you can use `run :local` to run tasks on local machine before of after the deploy scripts
   # run :local { say 'done' }
 end
 
+def :test do
+  run :local do
+    comment "test pgate!"
+    command %{curl -X POST -d 'a=1' http://a.pooulcloud.cn:8008/payment}
+  end
+end
 # For help in making your deploy script, see the Mina documentation:
 #
 #  - https://github.com/mina-deploy/mina/docs
