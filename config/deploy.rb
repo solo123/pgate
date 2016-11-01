@@ -10,9 +10,11 @@ require 'securerandom'
 #   repository   - Git repo to clone from. (needed by mina/git)
 #   branch       - Branch name to deploy. (needed by mina/git)
 
+app_name = 'pgate'
+
 set :domain, 'rb@a.pooulcloud.cn'
-set :deploy_to, '/home/rb/work/pgate'
-set :repository, 'https://github.com/solo123/pgate.git'
+set :deploy_to, "/home/rb/work/#{app_name}"
+set :repository, "https://github.com/solo123/#{app_name}.git"
 set :branch, 'deploy'
 
 # Optional settings:
@@ -43,7 +45,7 @@ task :setup do
     command %{pwd}
     command %{cp -R pgate_shared/config #{fetch(:deploy_to)}/shared}
     command %{sed -i 's/SECRET/#{SecureRandom.hex(64)}/g' #{fetch(:deploy_to)}/shared/config/secrets.yml}
-    command %{sed -i '1s/APP_NAME/pgate/1' #{fetch(:deploy_to)}/shared/config/puma.rb}
+    command %{sed -i '1s/APP_NAME/#{app_name}/1' #{fetch(:deploy_to)}/shared/config/puma.rb}
   end
 end
 
@@ -64,7 +66,7 @@ task :deploy do
 
     on :launch do
       in_path(fetch(:current_path)) do
-        command %{pumactl --state /home/rb/tmp/pids/puma-pgate.state restart}
+        command %{pumactl --state /home/rb/tmp/pids/puma-#{app_name}.state restart}
       end
     end
   end
@@ -79,8 +81,8 @@ end
 
 task :test do
   run :local do
-    comment "test pgate!"
-    command %{curl -X POST -d 'a=1' http://a.pooulcloud.cn:8008/payment}
+    comment "test #{app_name}!"
+    command %{curl -X POST -d 'data={"org_id":"123"}' http://a.pooulcloud.cn:8008/payment}
   end
 end
 # For help in making your deploy script, see the Mina documentation:

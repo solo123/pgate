@@ -1,5 +1,28 @@
-class PaymentController < ApplicationController
+class PaymentsController < ApplicationController
   def pay
+    prv = ReqRecv.new
+    prv.remote_ip = request.remote_ip
+    prv.method = 'pay'
+    prv.params = request.params.inspect
+    prv.data = params[:data]
+    prv.time_recv = Time.now
+    prv.save
+
+    biz = Biz::PaymentBiz.new
+    biz.pay(prv)
+    if biz.err_code == '00'
+      js = {resp_code: '00'}
+      pm = prv.payment
+      js[:pay_url] = pm.pay_url if pm.pay_url
+      js[:barcode_url] = pm.barcode_url if pm.barcode_url
+    else
+      js = {resp_code: biz.err_code, resp_desc: biz.err_desc}
+    end
+    prv.resp_body = js.to_json
+    prv.save
+    render json: prv.resp_body
+  end
+=begin
     log = BizLog.create(op_name: 'payment', op_message: params.inspect)
     js = Biz::PaymentBiz.parse_data_json(params[:data])
     if js[:resp_code] != '00'
@@ -27,5 +50,5 @@ class PaymentController < ApplicationController
     log.save
     render json: js
   end
-
+=end
 end

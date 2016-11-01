@@ -1,0 +1,15 @@
+one:
+  id: 1
+  org_id: 1
+  req_recv_id: 1
+  order_num: ORD-TEST-01
+  order_day: 20161101
+  order_time: 20161101010101
+  order_title: 测试order
+  attach_info: 附加信息
+  amount: 1000
+  remote_ip: 120.0.0.1
+  method: jsapi.pay
+  callback_url: http://localhost:8008/notify/test
+  notify_url: http://localhost:8008/callback/test
+  status: 0
