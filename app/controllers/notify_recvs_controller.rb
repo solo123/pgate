@@ -7,7 +7,7 @@ class NotifyRecvsController < ApplicationController
   end
   def do_notify
     save_to_db(request, action_name, params[:sender])
-    render plain: '--OK--'
+    render plain: get_notify_return(params[:sender])
   end
   def save_to_db(request, method, sender)
     rv = NotifyRecv.new
@@ -25,6 +25,10 @@ class NotifyRecvsController < ApplicationController
     h.remote_detail = request.inspect
     h.send_data = params.inspect
     h.save!
+  end
+  def get_notify_return(sender)
+    rn = AppConfig.get(sender, 'notify.return')
+    rn.nil? ? 'true' : rn
   end
 
 
