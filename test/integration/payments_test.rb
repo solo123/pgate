@@ -44,9 +44,6 @@ class PaymentsTest < ActionDispatch::IntegrationTest
     assert_equal '1234567890abcdef', org.tmk
   end
 
-  test 'appconfig初始值' do
-    assert_equal '1234567890abcdef', AppConfig.get('kaifu.user.d0.skey')
-  end
 =begin
   test 'P001 成功提交' do
     Biz::WebBiz.stubs(:post_data).returns({resp_code: '00', redirect_url: 'https://open.weixin.qq.com/mock'})
