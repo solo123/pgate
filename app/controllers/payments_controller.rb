@@ -14,7 +14,7 @@ class PaymentsController < ApplicationController
     biz.pay(prv)
     if biz.err_code == '00'
       js = {resp_code: '00'}
-      pm = prv.payment
+      pm = prv.payment.pay_result
       js[:pay_url] = pm.pay_url if pm.pay_url
       js[:barcode_url] = pm.barcode_url if pm.barcode_url
     else
