@@ -1,8 +1,8 @@
 GIT
   remote: https://github.com/solo123/pgate_model.git
-  revision: fe4c61ccbaf0041a949fba0d1265a627d44e26e3
+  revision: 5a4f53d726f9ce3ebe52774310490d2dd3ad7ccf
   specs:
-    pgate_model (0.9.0)
+    pgate_model (0.9.1)
       rails (~> 5.0.0, >= 5.0.0.1)
 
 GEM
