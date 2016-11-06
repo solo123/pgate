@@ -28,7 +28,7 @@ module Biz
       js_recv = parse_data_json(prv.data)
       return nil unless js_recv
 
-      if prv.sign != Biz::PublicTools.get_mac(js_recv, @org.tmk)
+      if prv.sign != Biz::PooulApi.get_mac(js_recv, @org.tmk)
         @err_code = 'A0'
         @err_desc = '检验mac错'
         return nil
