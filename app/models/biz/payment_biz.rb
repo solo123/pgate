@@ -4,18 +4,39 @@ module Biz
     FLDS_PAYMENT = %w(
       app_id open_id order_num order_time order_title
       attach_info amount fee remote_ip terminal_num
-      method callback_url notify_url
+      callback_url notify_url
     ).freeze
 
     #params: prv = req_recv
     def pay(prv)
       @err_code = '00'
       @err_desc = ''
+
+      required_fields = [:org_code, :method, :sign, :data]
+      if !(miss_flds = required_fields.select{|f| prv[f].nil? }).empty?
+        @err_code = '30'
+        @err_desc = '报文错，缺少字段：' + miss_flds.join(', ')
+        return nil
+      end
+      @org = Org.valid_status.find_by(org_code: prv.org_code)
+      if @org.nil?
+        @err_code = '03'
+        @err_desc = "无此商户: #{prv.org_code}"
+        return nil
+      end
+
       js_recv = parse_data_json(prv.data)
-      return unless js_recv && @org
+      return nil unless js_recv
+
+      if prv.sign != Biz::PublicTools.get_mac(js_recv, @org.tmk)
+        @err_code = 'A0'
+        @err_desc = '检验mac错'
+        return nil
+      end
 
       payment = prv.build_payment
       payment.org = @org
+      payment.method = prv.method
       Biz::PublicTools.update_fields_json(FLDS_PAYMENT, payment, js_recv)
       payment.save!
 
@@ -46,25 +67,6 @@ module Biz
         return nil
       end
 
-      required_fields = [:org_code, :method, :sign]
-      if !(miss_flds = required_fields.select{|f| js[f].nil? }).empty?
-        @err_code = '30'
-        @err_desc = '报文错，缺少字段：' + miss_flds.join(', ')
-        return nil
-      end
-
-      @org = Org.valid_status.find_by(org_code: js[:org_code])
-      if @org.nil?
-        @err_code = '03'
-        @err_desc = "无此商户: #{js[:org_code]}"
-        return nil
-      end
-
-      if js[:sign].upcase != Biz::PublicTools.get_mac(js, @org.tmk)
-        @err_code = 'A0'
-        @err_desc = '检验mac错'
-        return nil
-      end
       js
     end
 

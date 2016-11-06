@@ -6,21 +6,27 @@ class PaymentBizTest < ActionDispatch::IntegrationTest
     prv.data = nil
     biz = Biz::PaymentBiz.new
     biz.pay(prv)
-    assert_equal '30', biz.err_code, "非法格式"
+    assert_equal '30', biz.err_code, biz.err_desc
   end
   test "pay test org not exist" do
     prv = ReqRecv.new
-    prv.data = '{"org_code":"pooul0","method":"md01","sign":"abd"}'
+    prv.org_code = 'pooul0'
+    prv.method = 'md01'
+    prv.sign = 'abc'
+    prv.data = '{}'
     biz = Biz::PaymentBiz.new
     biz.pay(prv)
-    assert_equal '03', biz.err_code, '商户不存在'
+    assert_equal '03', biz.err_code, biz.err_desc
   end
   test "pay test mac wrong" do
     prv = ReqRecv.new
-    prv.data = '{"org_code":"pooul1","method":"md01","sign":"abd"}'
+    prv.org_code = 'pooul1'
+    prv.method = 'md01'
+    prv.sign = 'abc'
+    prv.data = '{"a":"1"}'
     biz = Biz::PaymentBiz.new
     biz.pay(prv)
-    assert_equal 'A0', biz.err_code, 'mac错'
+    assert_equal 'A0', biz.err_code, biz.err_desc
   end
   test "pay to pufubao incorrect" do
     pd = SentPost.new
@@ -29,19 +35,19 @@ class PaymentBizTest < ActionDispatch::IntegrationTest
     Biz::WebBiz.stubs(:post_data).returns(pd)
 
     js = {
-      org_code: 'pooul1',
-      method: 'JSAPI',
       order_num: 'ORD-001-982',
       amount: '1000'
     }
-    org = Org.find_by(org_code: 'pooul1')
-    js[:sign] = Biz::PublicTools.get_mac(js, org.tmk)
     biz = Biz::PaymentBiz.new
     prv = ReqRecv.new
+    prv.org_code = 'pooul1'
+    prv.method = 'JSAPI'
+    org = Org.find_by(org_code: 'pooul1')
+    prv.sign = Biz::PublicTools.get_mac(js, org.tmk)
     prv.data = js.to_json
 
     biz.pay(prv)
-    assert_equal '97', biz.err_code
+    assert_equal '97', biz.err_code, biz.err_desc
     assert prv.payment
     assert_equal js[:order_num], prv.payment.order_num
     assert_equal 7, prv.payment.status
@@ -54,19 +60,19 @@ class PaymentBizTest < ActionDispatch::IntegrationTest
     Biz::WebBiz.stubs(:post_data).returns(pd)
 
     js = {
-      org_code: 'pooul1',
-      method: 'JSAPI',
       order_num: 'ORD-001-982',
       amount: '1000'
     }
-    org = Org.find_by(org_code: 'pooul1')
-    js[:sign] = Biz::PublicTools.get_mac(js, org.tmk)
     biz = Biz::PaymentBiz.new
     prv = ReqRecv.new
+    prv.org_code = 'pooul1'
+    prv.method = 'JSAPI'
+    org = Org.find_by(org_code: 'pooul1')
+    prv.sign = Biz::PublicTools.get_mac(js, org.tmk)
     prv.data = js.to_json
 
     biz.pay(prv)
-    assert_equal '00', biz.err_code
+    assert_equal '00', biz.err_code, biz.err_desc
     assert prv.payment
     assert_equal js[:order_num], prv.payment.order_num
     assert_equal 1, prv.payment.status

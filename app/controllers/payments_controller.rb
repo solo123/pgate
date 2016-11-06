@@ -2,7 +2,9 @@ class PaymentsController < ApplicationController
   def pay
     prv = ReqRecv.new
     prv.remote_ip = request.remote_ip
-    prv.method = 'pay'
+    prv.method = params[:method]
+    prv.org_code = params[:org_code]
+    prv.sign = params[:sign]
     prv.params = request.params.inspect
     prv.data = params[:data]
     prv.time_recv = Time.now

@@ -122,6 +122,8 @@ ActiveRecord::Schema.define(version: 20161025153306) do
   create_table "req_recvs", force: :cascade do |t|
     t.string   "remote_ip"
     t.string   "method"
+    t.string   "org_code"
+    t.string   "sign"
     t.text     "data"
     t.text     "params"
     t.datetime "time_recv"

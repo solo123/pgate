@@ -15,29 +15,31 @@ class PaymentsTest < ActionDispatch::IntegrationTest
       as: :json
     assert_response :success
     body = JSON.parse(response.body)
-    assert_equal '30', body['resp_code']
+    assert_equal '30', body['resp_code'], body['resp_desc']
   end
   test "P001 未注册商户" do
     params = {
       org_code: 'pooul9991',
       method: 'P001',
+      data: '{"a":"1"}',
       sign: '111'
     }
-    post pay_url, params: {data: params.to_json}
+    post pay_url, params: params
     assert_response :success
     body = JSON.parse(response.body)
-    assert_equal '03', body['resp_code']
+    assert_equal '03', body['resp_code'], body['resp_desc']
   end
   test 'P001 mac错' do
     params = {
       org_code: 'pooul1',
       method: 'P001',
+      data: '{"a":"1"}',
       sign: '111'
     }
-    post pay_url, params: {data: params.to_json}
+    post pay_url, params: params
     assert_response :success
     body = JSON.parse(response.body)
-    assert_equal 'A0', body['resp_code']
+    assert_equal 'A0', body['resp_code'], body['resp_desc']
   end
   test "org TMK" do
     org = Org.find_by(org_code: 'pooul1')
@@ -75,14 +77,20 @@ class PaymentsTest < ActionDispatch::IntegrationTest
     post pay_url, params: "a=1&b=2"
     assert_response :success
     body = JSON.parse(response.body)
-    assert_equal '30', body['resp_code']
+    assert_equal '30', body['resp_code'], body['resp_desc']
   end
 
   test "post form format" do
-    post pay_url, params: 'data={"org_code":"pooul1","method":"P001","sign":"abc"}'
+    params = {
+      org_code: 'pooul1',
+      method: 'P001',
+      sign: '111',
+      data: '{"a":"1"}'
+    }
+    post pay_url, params: params
     assert_response :success
     body = JSON.parse(response.body)
-    assert_equal 'A0', body['resp_code']
+    assert_equal 'A0', body['resp_code'], body['resp_desc']
   end
 
 =begin
