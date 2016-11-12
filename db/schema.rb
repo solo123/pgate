@@ -81,7 +81,7 @@ ActiveRecord::Schema.define(version: 20161025153306) do
     t.string   "t0_code"
     t.string   "t0_desc"
     t.string   "pay_url"
-    t.string   "barcode_url"
+    t.string   "qr_code"
     t.datetime "created_at",        null: false
     t.datetime "updated_at",        null: false
     t.index ["payment_id"], name: "index_pay_results_on_payment_id"

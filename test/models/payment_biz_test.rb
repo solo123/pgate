@@ -6,7 +6,7 @@ class PaymentBizTest < ActionDispatch::IntegrationTest
     prv.data = nil
     biz = Biz::PaymentBiz.new
     biz.pay(prv)
-    assert_equal '30', biz.err_code, biz.err_desc
+    assert_equal '03', biz.err_code, biz.err_desc
   end
   test "pay test org not exist" do
     prv = ReqRecv.new
@@ -16,7 +16,7 @@ class PaymentBizTest < ActionDispatch::IntegrationTest
     prv.data = '{}'
     biz = Biz::PaymentBiz.new
     biz.pay(prv)
-    assert_equal '03', biz.err_code, biz.err_desc
+    assert_equal '02', biz.err_code, biz.err_desc
   end
   test "pay test mac wrong" do
     prv = ReqRecv.new
@@ -26,7 +26,7 @@ class PaymentBizTest < ActionDispatch::IntegrationTest
     prv.data = '{"a":"1"}'
     biz = Biz::PaymentBiz.new
     biz.pay(prv)
-    assert_equal 'A0', biz.err_code, biz.err_desc
+    assert_equal '04', biz.err_code, biz.err_desc
   end
   test "pay to pufubao incorrect" do
     pd = SentPost.new
@@ -41,9 +41,9 @@ class PaymentBizTest < ActionDispatch::IntegrationTest
     biz = Biz::PaymentBiz.new
     prv = ReqRecv.new
     prv.org_code = 'pooul1'
-    prv.method = 'JSAPI'
+    prv.method = 'weixin.jsapi'
     org = Org.find_by(org_code: 'pooul1')
-    prv.sign = Biz::PublicTools.get_mac(js, org.tmk)
+    prv.sign = Biz::PooulApi.get_mac(js, org.tmk)
     prv.data = js.to_json
 
     biz.pay(prv)
@@ -61,16 +61,17 @@ class PaymentBizTest < ActionDispatch::IntegrationTest
 
     js = {
       order_num: 'ORD-001-982',
-      amount: '1000'
+      amount: '1000',
+      order_title: 'test pufubao order 001'
     }
-    biz = Biz::PaymentBiz.new
     prv = ReqRecv.new
     prv.org_code = 'pooul1'
-    prv.method = 'JSAPI'
+    prv.method = 'weixin.jsapi'
     org = Org.find_by(org_code: 'pooul1')
-    prv.sign = Biz::PublicTools.get_mac(js, org.tmk)
+    prv.sign = Biz::PooulApi.get_mac(js, org.tmk)
     prv.data = js.to_json
 
+    biz = Biz::PaymentBiz.new
     biz.pay(prv)
     assert_equal '00', biz.err_code, biz.err_desc
     assert prv.payment

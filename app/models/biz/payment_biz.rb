@@ -1,6 +1,6 @@
 module Biz
   class PaymentBiz < BizBase
-    attr_reader :err_code, :err_desc
+    attr_reader :err_code, :err_desc, :resp_json
     FLDS_PAYMENT = %w(
       app_id open_id order_num order_time order_title
       attach_info amount fee remote_ip terminal_num
@@ -13,24 +13,30 @@ module Biz
       @err_desc = ''
 
       required_fields = [:org_code, :method, :sign, :data]
-      if !(miss_flds = required_fields.select{|f| prv[f].nil? }).empty?
-        @err_code = '30'
+      miss_flds = required_fields.select{|f| prv[f].nil? }
+      unless miss_flds.empty?
+        @err_code = '03'
         @err_desc = '报文错，缺少字段：' + miss_flds.join(', ')
         return nil
       end
+
       @org = Org.valid_status.find_by(org_code: prv.org_code)
       if @org.nil?
-        @err_code = '03'
+        @err_code = '02'
         @err_desc = "无此商户: #{prv.org_code}"
         return nil
       end
 
       js_recv = parse_data_json(prv.data)
-      return nil unless js_recv
+      unless js_recv
+        @err_code = '03'
+        @err_desc = "业务数据为空: data=[#{prv.data}]"
+        return nil
+      end
 
       if prv.sign != Biz::PooulApi.get_mac(js_recv, @org.tmk)
-        @err_code = 'A0'
-        @err_desc = '检验mac错'
+        @err_code = '04'
+        @err_desc = 'sign检验错'
         return nil
       end
 
@@ -41,9 +47,17 @@ module Biz
       payment.save!
 
       biz = Biz::ChannelBiz.new
-      biz.send_channel(payment)
+      biz.pay(payment)
       @err_code = biz.err_code
       @err_desc = biz.err_desc
+      @resp_json = biz.resp_json
+    end
+    def gen_response_json
+      if @err_code == '00'
+        @resp_json
+      else
+        {resp_code: @err_code, resp_desc: @err_desc}.to_json
+      end
     end
 
 

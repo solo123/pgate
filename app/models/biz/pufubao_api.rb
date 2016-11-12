@@ -1,7 +1,6 @@
 require 'securerandom'
 module Biz
-  class PufubaoApi < BizBase
-    attr_reader :err_code, :err_desc, :req_data
+  class PufubaoApi < WeixinBiz
 
     PUFUBAO_FIELDS_MAP = {
       appid: 'app_id',
@@ -48,6 +47,14 @@ module Biz
       @err_code = pr.send_code.to_s
       @err_desc = pr.send_desc
     end
+    def gen_response_json
+      if @err_code == '00'
+        {resp_code: '00'}.to_json
+      else
+        {resp_code: @err_code, resp_desc: @err_desc}.to_json
+      end
+    end
+
 
     def gen_pay_req_data(payment)
       js = Biz::PublicTools.gen_js(PUFUBAO_FIELDS_MAP, payment)
