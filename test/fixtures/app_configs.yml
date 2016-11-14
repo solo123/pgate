@@ -16,3 +16,7 @@ five:
 six:
   group: kaifu.api.app.pay_url
   val: 'http://localhost'
+keys_path:
+  group: 'pooul'
+  name: 'keys_path'
+  val: '/Users/jimmy/work/keys'
