@@ -47,7 +47,8 @@ class AlipayTest < ActionDispatch::IntegrationTest
     js = {
       order_num: ord_num,
       amount: '100',
-      order_title: "test alipay order #{rnd}"
+      order_title: "test alipay order #{rnd}",
+      nonce_str: '0x*(ddd)5x'
     }
     org = Org.find_by(org_code: 'pooul1')
     sign = Biz::PooulApi.get_mac(js, org.tmk)
