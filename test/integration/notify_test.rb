@@ -2,7 +2,7 @@ require 'test_helper'
 
 class NotifyTest < ActionDispatch::IntegrationTest
   test "post to notify url" do
-    post notify_url(sender: 'tst'), params: { a_fld: 'a field', b_fld: 'b field', data: 'data-txt' }
+    post notify_url(ref: 'order_num', sender: 'tst'), params: { a_fld: 'a field', b_fld: 'b field', data: 'data-txt' }
     assert_response :success
 
     r = NotifyRecv.find_by(data: 'data-txt')

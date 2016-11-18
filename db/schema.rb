@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161025153306) do
+ActiveRecord::Schema.define(version: 20161118024252) do
 
   create_table "app_configs", force: :cascade do |t|
     t.string   "group"
@@ -52,6 +52,7 @@ ActiveRecord::Schema.define(version: 20161025153306) do
     t.integer  "status",         default: 0
     t.datetime "created_at",                 null: false
     t.datetime "updated_at",                 null: false
+    t.string   "ref"
   end
 
   create_table "orgs", force: :cascade do |t|
@@ -161,6 +162,55 @@ ActiveRecord::Schema.define(version: 20161025153306) do
     t.datetime "updated_at",                          null: false
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+  end
+
+  create_table "zx_contr_info_lists", force: :cascade do |t|
+    t.integer  "zx_mercht_id"
+    t.string   "pay_typ_encd"
+    t.string   "start_dt"
+    t.decimal  "pay_typ_fee_rate", precision: 5, scale: 4
+    t.datetime "created_at",                               null: false
+    t.datetime "updated_at",                               null: false
+    t.index ["zx_mercht_id"], name: "index_zx_contr_info_lists_on_zx_mercht_id"
+  end
+
+  create_table "zx_merchts", force: :cascade do |t|
+    t.string   "chnl_id"
+    t.string   "chnl_mercht_id"
+    t.string   "pay_chnl_encd"
+    t.string   "mercht_belg_chnl_id"
+    t.string   "mercht_full_name"
+    t.string   "mercht_sht_nm"
+    t.string   "cust_serv_tel"
+    t.string   "contcr_nm"
+    t.string   "contcr_tel"
+    t.string   "contcr_mobl_num"
+    t.string   "contcr_eml"
+    t.string   "opr_cls"
+    t.string   "mercht_memo"
+    t.string   "prov"
+    t.string   "urbn"
+    t.text     "dtl_addr"
+    t.string   "acct_nm"
+    t.string   "opn_bnk"
+    t.string   "is_nt_citic"
+    t.string   "acct_typ"
+    t.string   "pay_ibank_num"
+    t.string   "acct_num"
+    t.string   "is_nt_two_line"
+    t.string   "comm_fee_acct_type"
+    t.string   "comm_fee_acct_nm"
+    t.string   "comm_fee_bank_nm"
+    t.string   "ibank_num"
+    t.string   "comm_fee_acct_num"
+    t.string   "biz_lics_asset"
+    t.string   "dtl_memo"
+    t.string   "appl_typ"
+    t.string   "trancode"
+    t.text     "msg_sign"
+    t.integer  "status",              default: 0
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
   end
 
 end
