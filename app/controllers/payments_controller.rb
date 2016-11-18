@@ -7,7 +7,7 @@ class PaymentsController < ApplicationController
     prv.sign = params[:sign]
     prv.params = request.params.inspect
     prv.data = params[:data]
-    prv.time_recv = Time.now
+    prv.time_recv = Time.current
     prv.save
 
     biz = Biz::PaymentBiz.new

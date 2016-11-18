@@ -45,6 +45,28 @@ class PaymentsTest < ActionDispatch::IntegrationTest
     org = Org.find_by(org_code: 'pooul1')
     assert_equal '1234567890abcdef', org.tmk
   end
+  test 'Payment Duplicate' do
+    data = {
+      order_num: 'ORD-001-DUP',
+      amount: '1000',
+      order_title: 'test pufubao order 001 DUP'
+    }
+
+    params = {
+      org_code: 'pooul1',
+      method: 'TEST001',
+      data: data.to_json,
+      sign: Biz::PooulApi.get_mac(data, Org.find_by(org_code: 'pooul1').tmk)
+    }
+    post pay_url, params: params
+    assert_response :success
+
+    params[:method] = 'TEST001-DUP'
+    post pay_url, params: params
+    assert_response :success
+    resp = JSON.parse(response.body)
+    assert_equal '03', resp['resp_code'], resp['resp_desc']
+  end
 
 =begin
   test 'P001 成功提交' do

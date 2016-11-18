@@ -79,4 +79,5 @@ class PaymentBizTest < ActionDispatch::IntegrationTest
     assert_equal 1, prv.payment.status
     assert prv.payment.pay_result.pay_url.start_with?('https://open.weixin')
   end
+
 end

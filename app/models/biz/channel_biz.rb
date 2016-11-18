@@ -6,10 +6,11 @@ module Biz
       attach_info amount fee remote_ip terminal_num
       method callback_url notify_url
     ).freeze
+    TEST_MODE = false
 
     def pay(payment)
       if payment.method.start_with? 'alipay.'
-        biz = ZxAlipayBiz.new
+        biz = ZxAlipayBiz.new(TEST_MODE)
       elsif payment.method.start_with? 'weixin.'
         biz = PufubaoApi.new
       end

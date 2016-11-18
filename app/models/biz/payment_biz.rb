@@ -40,9 +40,17 @@ module Biz
         return nil
       end
 
+      o_day = Time.current.strftime("%Y%m%d")
+      if Payment.find_by(org: @org, order_day: o_day, order_num: js_recv[:order_num])
+        @err_code = '03'
+        @err_desc = "order_num当日重复: [#{js_recv[:order_num]}]"
+        return nil
+      end
+
       payment = prv.build_payment
       payment.org = @org
       payment.method = prv.method
+      payment.order_day = o_day
       Biz::PublicTools.update_fields_json(FLDS_PAYMENT, payment, js_recv)
       payment.save!
 
