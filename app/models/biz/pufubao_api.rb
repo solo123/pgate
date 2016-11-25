@@ -1,7 +1,6 @@
 require 'securerandom'
 module Biz
   class PufubaoApi < WeixinBiz
-
     PUFUBAO_FIELDS_MAP = {
       appid: 'app_id',
       device_info: 'terminal_num',
@@ -13,11 +12,14 @@ module Biz
       openid: 'open_id',
       goods_tag: 'goods_tag'
     }.freeze
-
     PUFUBAO_PAY_URL = "http://brcb.pufubao.net/gateway".freeze
-    PUFUBAO_ORG_NUM = "C147815927610610144".freeze
-    PUFUBAO_KEY = "80ec3fa34fa04d8fa369d6170aaa55a2".freeze
-
+    def pfb_mch_id
+      #TODO: seek by org_code
+      "C147815927610610144"
+    end
+    def pfb_key
+      "80ec3fa34fa04d8fa369d6170aaa55a2"
+    end
 
     def pay(payment)
       pr = payment.build_pay_result
@@ -28,14 +30,14 @@ module Biz
       #TODO: pufubao pay
       #debugger
       @req_data = gen_pay_req_data(payment)
-      ret = Biz::WebBiz.post_data('pufubao.pay', PUFUBAO_PAY_URL, @req_data, payment)
+      ret = WebBiz.post_data('pufubao.pay', PUFUBAO_PAY_URL, @req_data, payment)
       if ret && ret.resp_body.start_with?('redirect_url')
         pr.pay_url = ret.resp_body[13, 200]
         pr.send_code = '00'
         payment.status = 1
       else
         pr.send_code = '97'
-        if ret.resp_body && (ret_js = Biz::PublicTools.parse_json(ret.resp_body))
+        if ret.resp_body && (ret_js = PublicTools.parse_json(ret.resp_body))
           pr.send_desc = "[#{ret_js[:return_code]}] #{ret_js[:return_msg]}"
         else
           pr.send_desc = ret.result_message
@@ -57,14 +59,14 @@ module Biz
 
 
     def gen_pay_req_data(payment)
-      js = Biz::PublicTools.gen_js(PUFUBAO_FIELDS_MAP, payment)
+      js = PublicTools.gen_js(PUFUBAO_FIELDS_MAP, payment)
       js[:service_type] = 'WECHAT_WEBPAY'
-      js[:mch_id] = PUFUBAO_ORG_NUM
+      js[:mch_id] = pfb_mch_id
       js[:nonce_str] = SecureRandom.hex(16)
       js[:notify_url] = AppConfig.get('pooul', 'notify_url')
       js[:trade_type] = 'JSAPI'
       js[:out_trade_no] = payment.pay_result.uni_order_num
-      js[:sign] = self.class.get_mac(js, PUFUBAO_KEY)
+      js[:sign] = self.class.get_mac(js, pfb_mch_id)
       js
     end
 

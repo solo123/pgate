@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161118024252) do
+ActiveRecord::Schema.define(version: 20161123095521) do
 
   create_table "app_configs", force: :cascade do |t|
     t.string   "group"
@@ -172,6 +172,20 @@ ActiveRecord::Schema.define(version: 20161118024252) do
     t.datetime "created_at",                               null: false
     t.datetime "updated_at",                               null: false
     t.index ["zx_mercht_id"], name: "index_zx_contr_info_lists_on_zx_mercht_id"
+  end
+
+  create_table "zx_fields", force: :cascade do |t|
+    t.string  "trancode"
+    t.integer "msg_typ"
+    t.string  "regn_en_nm"
+    t.string  "regn_cn_nm"
+    t.integer "sort_num"
+    t.string  "regn_data_typ"
+    t.integer "regn_nt_null"
+    t.integer "is_sign_regn"
+    t.integer "actv_stat"
+    t.string  "table_name"
+    t.string  "field_name"
   end
 
   create_table "zx_merchts", force: :cascade do |t|
