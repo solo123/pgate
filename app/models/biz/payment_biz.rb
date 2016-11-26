@@ -4,7 +4,7 @@ module Biz
     FLDS_PAYMENT = %w(
       app_id open_id order_num order_time order_title
       attach_info amount fee remote_ip terminal_num
-      callback_url notify_url
+      callback_url notify_url auth_code
     ).freeze
 
     #params: prv = req_recv

@@ -11,7 +11,7 @@ module Biz
     def pay(payment)
       if payment.method.start_with? 'alipay.'
         biz = ZxAlipayBiz.new(TEST_MODE)
-      elsif payment.method.start_with? 'weixin.'
+      elsif payment.method.start_with? 'wechat.'
         biz = PufubaoApi.new
       end
       if biz
