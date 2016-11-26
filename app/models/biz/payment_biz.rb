@@ -34,9 +34,10 @@ module Biz
         return nil
       end
 
-      if prv.sign != Biz::PooulApi.get_mac(js_recv, @org.tmk)
+      chk_sign = PooulApi.get_mac(js_recv, @org.tmk)
+      if prv.sign != chk_sign
         @err_code = '04'
-        @err_desc = 'sign检验错'
+        @err_desc = "sign检验错: [#{chk_sign}]<>[#{prv.sign}]"
         return nil
       end
 
