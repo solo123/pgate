@@ -94,35 +94,34 @@ module Biz
     end
 
 
-=begin
-
-
-    #params c = client_payment
-    def self.send_notify(c)
+    #params pm = payment
+    def self.send_notify(pm)
       notify_time = Time.now
       js = {
-        org_id: c.org_id,
-        trans_type: c.trans_type,
-        order_time: c.order_time,
-        order_id: c.order_id,
-        amount: c.amount,
-        attach_info: c.attach_info,
-        resp_code: c.resp_code,
-        resp_desc: c.resp_desc,
-        pay_code: c.pay_code,
-        pay_desc: c.pay_desc,
+        org_code: pm.org.org_code,
+        method: pm.method,
+        order_num: pm.order_num,
+        order_time: pm.order_time,
+        amount: pm.amount,
+        attach_info: pm.attach_info,
+        send_code: pm.pay_result.send_code,
+        send_desc: pm.pay_result.send_desc,
+        pay_code: pm.pay_result.pay_code,
+        pay_desc: pm.pay_result.pay_desc,
         notify_time: notify_time.strftime("%Y%m%d%H%M%S"),
-        op_time: c.updated_at.strftime("%Y%m%d%H%M%S")
-      }
-      mab = Biz::PubEncrypt.get_mab(js)
-      js[:mac] = Biz::PubEncrypt.md5(mab + c.client.tmk)
-      txt = Biz::WebBiz.post_data(c.notify_url, js.to_json, c)
-      c.notify_times += 1
-      c.last_notify = notify_time
-      c.notify_status = 8 if txt =~ /(true)|(ok)|(success)/
-      c.save!
-    end
+        pay_time: pm.pay_result.pay_time.strftime("%Y%m%d%H%M%S"),
+      }.select { |_, value| !value.nil? }
 
+      mab = Biz::PubEncrypt.get_mab(js)
+      js[:mac] = Biz::PubEncrypt.md5(mab + pm.org.tmk)
+      txt = Biz::WebBiz.post_data('notify', pm.notify_url, js.to_json, pm)
+      pm.pay_result.notify_times += 1
+      pm.pay_result.last_notify_at = notify_time
+      pm.pay_result.notify_times = 100 if txt =~ /(true)|(ok)|(success)|(SUCCESS)/
+      pm.pay_result.save!
+      pm.save!
+    end
+=begin
     def self.pay_query(org_id, order_time, order_id)
       uid = "#{org_id}-#{order_time[0..7]}-#{order_id}"
       if cp = ClientPayment.find_by(uni_order_id: uid)

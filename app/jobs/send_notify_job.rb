@@ -7,13 +7,14 @@ class SendNotifyJob < ApplicationJob
     n = args[0]
     return false unless n > 0
 
-    c = ClientPayment.find(n)
-    return false unless c && c.notify_status != 8
+    pm = Payment.find(n)
+    pr = pm.pay_result
+    return false unless pm && pr && pr.notify_times < 100
 
-    Biz::PaymentBiz.send_notify(c)
-    if c.notify_status != 8 && c.notify_times < 6
-      wait_times = [60, 120, 300, 1200, 3600, 7200, 36000]
-      SendNotifyJob.perform_in(wait_times[c.notify_times], n)
+    Biz::PaymentBiz.send_notify(pm)
+    if pr.notify_times < 8
+      wait_times = [10, 60, 120, 300, 1200, 3600, 7200, 36000]
+      SendNotifyJob.perform_in(wait_times[pr.notify_times], n)
     end
     true
   end

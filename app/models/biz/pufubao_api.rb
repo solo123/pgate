@@ -137,6 +137,55 @@ module Biz
       js
     end
 
+    def self.send_notify(notify_recv)
+      return unless notify_recv.status == 0 && notify_recv.sender == 'pfb'
+
+      js = eval(notify_recv.params)
+      pay_result = PayResult.find_by(uni_order_num: notify_recv.ref)
+      payment = pay_result.payment if pay_result
+      if pay_result && payment
+        if js['return_code'] == 'SUCCESS'
+          if check_return_equal(payment, js)
+            if js['result_code'] == 'SUCCESS'
+              pay_result.app_id = js['appid']
+              pay_result.open_id = js['openid']
+              pay_result.is_subscribe = js['is_subscribe']
+              pay_result.bank_type = js['bank_type']
+              pay_result.total_fee = js['total_fee']
+              pay_result.transaction_id = js['transaction_id']
+              notify_recv.result_message = '支付成功'
+              payment.status = 8
+            else
+              notify_recv.result_message = '支付失败'
+            end
+            notify_recv.status = 1
+          else
+            notify_recv.status = 7
+            notify_recv.result_message = '回调信息与支付请求不匹配。'
+          end
+        else
+          payment.status = 7
+          pay_result.send_code = '70'
+          pay_result.send_desc = js['return_msg']
+        end
+        notify_recv.save!
+        pay_result.save!
+        payment.save!
+        payment.id
+      else
+        notify_recv.status = 7
+        notify_recv.result_message = "pfb订单:[#{notify_recv.ref}]没找到！"
+        notify_recv.save!
+        0
+      end
+    end
+
+    def self.check_return_equal(payment, js)
+      pr = payment.pay_result
+      return pr.channel_client_id == js['mch_id'] && \
+        pr.uni_order_num == js['out_trade_no']
+    end
+
     def self.get_mab(js)
       mab = []
       js.keys.sort.each do |k|

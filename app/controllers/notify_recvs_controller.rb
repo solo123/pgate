@@ -26,11 +26,14 @@ class NotifyRecvsController < ApplicationController
     h.remote_detail = request.inspect
     h.send_data = params.inspect
     h.save!
+
+    if rv.method == 'pfb'
+     payment_id = Biz::PufubaoApi.send_notify(rv)
+     SendNotifyJob.new.perform(payment_id)
+   end
   end
   def get_notify_return(sender)
-    rn = AppConfig.get(sender, 'notify.return')
-    rn.nil? ? 'true' : rn
+    AppConfig.get(sender, 'notify.return') || 'SUCCESS'
   end
-
 
 end
