@@ -11,7 +11,7 @@ module Biz
       time_start: 'order_time',
       openid: 'open_id',
       goods_tag: 'goods_tag',
-      auth_code: 'auth_code'
+      auth_code: 'auth_code',
     }.freeze
     PUFUBAO_PAY_URL = "http://brcb.pufubao.net/gateway".freeze
 
@@ -130,7 +130,8 @@ module Biz
       js[:trade_type] = 'JSAPI'
       js[:mch_id] = payment.org.pfb_mercht.mch_id
       js[:nonce_str] = SecureRandom.hex(16)
-      js[:notify_url] = AppConfig.get('pooul', 'notify_url')
+      js[:notify_url] = AppConfig.get('pooul', 'notify_url') + '/pfb/' + payment.pay_result.uni_order_num
+      js[:callback_url] = AppConfig.get('pooul', 'callback_url') + '/pfb/' + payment.pay_result.uni_order_num
       js[:out_trade_no] = payment.pay_result.uni_order_num
       js[:sign] = self.class.get_mac(js, payment.org.pfb_mercht.mch_key)
       js
