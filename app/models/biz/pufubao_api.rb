@@ -52,7 +52,7 @@ module Biz
                 pr.transaction_id = ret_js[:transaction_id]
                 pr.pay_time = ret_js[:time_end]
                 pr.need_query = ret_js[:need_query]
-                pr.pay_code = ret_js[:result_code]
+                pr.pay_code = '00'
                 pr.pay_desc = '支付成功'
                 payment.status = 8
               else

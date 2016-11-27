@@ -75,4 +75,35 @@ Rails.application.configure do
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
+
+  # Enable the logstasher logs for the current environment
+  config.logstasher.enabled = true
+
+  # Each of the following lines are optional. If you want to selectively disable log subscribers.
+  config.logstasher.controller_enabled = false
+  config.logstasher.mailer_enabled = false
+  config.logstasher.record_enabled = false
+  config.logstasher.view_enabled = false
+  config.logstasher.job_enabled = false
+
+  # Enable logging of controller params
+  config.logstasher.log_controller_parameters = true
+
+  # This line is optional if you do not want to suppress app logs in your <environment>.log
+  config.logstasher.suppress_app_log = false
+
+  # This line is optional, it allows you to set a custom value for the @source field of the log event
+  config.logstasher.source = 'pgate.logstasher.source'
+
+  # This line is optional if you do not want to log the backtrace of exceptions
+  config.logstasher.backtrace = true
+
+  # This line is optional, defaults to log/logstasher_<environment>.log
+  config.logstasher.logger_path = 'log/logstasher.log'
+
+  config.autoflush_log = true
+  config.logstash.host = 'localhost'
+  config.logstash.port = 5228
+  config.logstash.type = :tcp
+
 end
