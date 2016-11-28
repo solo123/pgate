@@ -41,7 +41,7 @@ class PaymentBizTest < ActionDispatch::IntegrationTest
     biz = Biz::PaymentBiz.new
     prv = ReqRecv.new
     prv.org_code = 'pooul1'
-    prv.method = 'weixin.jsapi'
+    prv.method = 'wechat.jsapi'
     org = Org.find_by(org_code: 'pooul1')
     prv.sign = Biz::PooulApi.get_mac(js, org.tmk)
     prv.data = js.to_json
@@ -66,7 +66,7 @@ class PaymentBizTest < ActionDispatch::IntegrationTest
     }
     prv = ReqRecv.new
     prv.org_code = 'pooul1'
-    prv.method = 'weixin.jsapi'
+    prv.method = 'wechat.jsapi'
     org = Org.find_by(org_code: 'pooul1')
     prv.sign = Biz::PooulApi.get_mac(js, org.tmk)
     prv.data = js.to_json

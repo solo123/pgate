@@ -137,8 +137,8 @@ module Biz
       js
     end
 
-    def self.send_notify(notify_recv)
-      return unless notify_recv.status == 0 && notify_recv.sender == 'pfb'
+    def self.process_notify(notify_recv)
+      return 0 unless notify_recv.status == 0 && notify_recv.ref && notify_recv.sender == 'pfb' && notify_recv.method == 'notify'
 
       js = eval(notify_recv.params)
       pay_result = PayResult.find_by(uni_order_num: notify_recv.ref)

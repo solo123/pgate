@@ -20,3 +20,11 @@ keys_path:
   group: 'pooul'
   name: 'keys_path'
   val: '/Users/jimmy/work/keys'
+cb:
+  group: 'pooul'
+  name: 'callback_url'
+  val: 'http://localhost:8008/callback'
+nf:
+  group: 'pooul'
+  name: 'notify_url'
+  val: 'http://localhost:8008/notify'

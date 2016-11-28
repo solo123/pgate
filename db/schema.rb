@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161123095521) do
+ActiveRecord::Schema.define(version: 20161127194032) do
 
   create_table "app_configs", force: :cascade do |t|
     t.string   "group"
@@ -18,6 +18,17 @@ ActiveRecord::Schema.define(version: 20161123095521) do
     t.string   "val"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "attachments", force: :cascade do |t|
+    t.string   "attach_owner_type"
+    t.integer  "attach_owner_id"
+    t.string   "tag_name"
+    t.string   "title"
+    t.string   "attach_asset"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+    t.index ["attach_owner_type", "attach_owner_id"], name: "index_attachments_on_attach_owner_type_and_attach_owner_id"
   end
 
   create_table "cards", force: :cascade do |t|
@@ -40,6 +51,26 @@ ActiveRecord::Schema.define(version: 20161123095521) do
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
     t.index ["sender_type", "sender_id"], name: "index_http_logs_on_sender_type_and_sender_id"
+  end
+
+  create_table "merchants", force: :cascade do |t|
+    t.integer "org_id"
+    t.string  "full_name"
+    t.string  "short_name"
+    t.string  "service_tel"
+    t.string  "business_category"
+    t.text    "memo"
+    t.string  "lic_number"
+    t.string  "jp_name"
+    t.string  "jp_id_number"
+    t.string  "contact_name"
+    t.string  "contact_tel"
+    t.string  "contact_email"
+    t.string  "province"
+    t.string  "urbn"
+    t.string  "city_area"
+    t.text    "address"
+    t.index ["org_id"], name: "index_merchants_on_org_id"
   end
 
   create_table "notify_recvs", force: :cascade do |t|
@@ -85,6 +116,16 @@ ActiveRecord::Schema.define(version: 20161123095521) do
     t.string   "qr_code"
     t.datetime "created_at",        null: false
     t.datetime "updated_at",        null: false
+    t.string   "open_id"
+    t.string   "is_subscribe"
+    t.string   "bank_type"
+    t.integer  "total_fee"
+    t.string   "transaction_id"
+    t.string   "need_query"
+    t.string   "app_id"
+    t.string   "channel_client_id"
+    t.integer  "notify_times"
+    t.datetime "last_notify_at"
     t.index ["payment_id"], name: "index_pay_results_on_payment_id"
   end
 
@@ -113,11 +154,24 @@ ActiveRecord::Schema.define(version: 20161123095521) do
     t.integer  "status",            default: 0
     t.datetime "created_at",                    null: false
     t.datetime "updated_at",                    null: false
+    t.string   "auth_code"
     t.index ["card_id"], name: "index_payments_on_card_id"
     t.index ["order_day"], name: "index_payments_on_order_day"
     t.index ["order_num"], name: "index_payments_on_order_num"
     t.index ["org_id"], name: "index_payments_on_org_id"
     t.index ["req_recv_id"], name: "index_payments_on_req_recv_id"
+  end
+
+  create_table "pfb_merchts", force: :cascade do |t|
+    t.integer  "merchant_id"
+    t.integer  "org_id"
+    t.string   "mch_id"
+    t.string   "mch_key"
+    t.integer  "status",      default: 0
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
+    t.index ["merchant_id"], name: "index_pfb_merchts_on_merchant_id"
+    t.index ["org_id"], name: "index_pfb_merchts_on_org_id"
   end
 
   create_table "req_recvs", force: :cascade do |t|

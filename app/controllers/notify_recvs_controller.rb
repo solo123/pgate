@@ -27,10 +27,7 @@ class NotifyRecvsController < ApplicationController
     h.send_data = params.inspect
     h.save!
 
-    if rv.method == 'pfb'
-     payment_id = Biz::PufubaoApi.send_notify(rv)
-     SendNotifyJob.new.perform(payment_id)
-   end
+    Biz::NotifyBiz.send_notify(rv)
   end
   def get_notify_return(sender)
     AppConfig.get(sender, 'notify.return') || 'SUCCESS'

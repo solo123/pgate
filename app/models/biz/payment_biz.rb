@@ -109,8 +109,8 @@ module Biz
         pay_code: pm.pay_result.pay_code,
         pay_desc: pm.pay_result.pay_desc,
         notify_time: notify_time.strftime("%Y%m%d%H%M%S"),
-        pay_time: pm.pay_result.pay_time.strftime("%Y%m%d%H%M%S"),
       }.select { |_, value| !value.nil? }
+      js[:pay_time] = pm.pay_result.pay_time.strftime("%Y%m%d%H%M%S") if pm.pay_result.pay_time
 
       mab = Biz::PubEncrypt.get_mab(js)
       js[:mac] = Biz::PubEncrypt.md5(mab + pm.org.tmk)

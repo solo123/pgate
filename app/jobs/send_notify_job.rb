@@ -9,6 +9,7 @@ class SendNotifyJob < ApplicationJob
 
     pm = Payment.find(n)
     pr = pm.pay_result
+    pr.notify_times = 0 unless pr.notify_times
     return false unless pm && pr && pr.notify_times < 100
 
     Biz::PaymentBiz.send_notify(pm)
