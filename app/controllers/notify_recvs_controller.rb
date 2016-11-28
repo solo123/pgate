@@ -14,7 +14,7 @@ class NotifyRecvsController < ApplicationController
     rv.method = method
     rv.ref = request.params['ref']
     rv.sender = sender
-    rv.send_host = request.headers['remote-addr']
+    rv.send_host = request.remote_ip #headers['remote-addr']
     rv.params = request.params.to_s
     rv.data = params['data']
     rv.status = 0
