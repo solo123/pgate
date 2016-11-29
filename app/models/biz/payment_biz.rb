@@ -111,15 +111,20 @@ module Biz
         notify_time: notify_time.strftime("%Y%m%d%H%M%S"),
       }.select { |_, value| !value.nil? }
       js[:pay_time] = pm.pay_result.pay_time.strftime("%Y%m%d%H%M%S") if pm.pay_result.pay_time
-
+      
       mab = Biz::PubEncrypt.get_mab(js)
       js[:mac] = Biz::PubEncrypt.md5(mab + pm.org.tmk)
-      txt = Biz::WebBiz.post_data('notify', pm.notify_url, js.to_json, pm)
-      pm.pay_result.notify_times += 1
+      sp = Biz::WebBiz.post_data('notify', pm.notify_url, js, pm)
+      if pm.pay_result.notify_times
+        pm.pay_result.notify_times += 1
+      else
+        pm.pay_result.notify_times = 1
+      end
       pm.pay_result.last_notify_at = notify_time
-      pm.pay_result.notify_times = 100 if txt =~ /(true)|(ok)|(success)|(SUCCESS)/
+      pm.pay_result.notify_times = 100 if sp.resp_body =~ /(true)|(ok)|(success)|(SUCCESS)/
       pm.pay_result.save!
       pm.save!
+      sp
     end
 =begin
     def self.pay_query(org_id, order_time, order_id)

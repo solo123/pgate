@@ -26,6 +26,7 @@ module Biz
         @err_desc = "没有为此商户开通支付通道"
         return
       end
+      pr.channel_client_id = payment.org.pfb_mercht.mch_id
 
       #TODO: pufubao pay
       @req_data = gen_pay_req_data(payment)
@@ -153,10 +154,13 @@ module Biz
               pay_result.bank_type = js['bank_type']
               pay_result.total_fee = js['total_fee']
               pay_result.transaction_id = js['transaction_id']
-              notify_recv.result_message = '支付成功'
+              pay_result.pay_time = js['time_end']
+              pay_result.pay_code = '00'
+              pay_result.pay_desc = notify_recv.result_message = '支付成功'
               payment.status = 8
             else
-              notify_recv.result_message = '支付失败'
+              pay_result.pay_code = '70'
+              pay_result.pay_desc = notify_recv.result_message = '支付失败'
             end
             notify_recv.status = 1
           else
