@@ -186,6 +186,7 @@ module Biz
 
     def self.check_return_equal(payment, js)
       pr = payment.pay_result
+      pr.channel_client_id ||= js['mch_id']
       return pr.channel_client_id == js['mch_id'] && \
         pr.uni_order_num == js['out_trade_no']
     end
