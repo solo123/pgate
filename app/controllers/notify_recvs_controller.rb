@@ -1,13 +1,11 @@
 class NotifyRecvsController < ApplicationController
   def notify
-    do_notify
-  end
-  def callback
-    do_notify
-  end
-  def do_notify
     save_to_db(request, action_name, params[:sender])
     render plain: get_notify_return(params[:sender])
+  end
+  def callback
+    save_to_db(request, action_name, params[:sender])
+    render plain: '这里是：CallBack 页面！'
   end
   def save_to_db(request, method, sender)
     rv = NotifyRecv.new
