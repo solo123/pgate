@@ -15,10 +15,11 @@ class QueryController < ApplicationController
     prv.resp_body = biz.gen_query_response
     prv.save
     render json: prv.resp_body
+  end
 
 
 
-
+  def tt
     js = Biz::PaymentBiz.parse_data_json(params[:data])
     if js[:resp_code] != '00'
       log.op_result = js.to_json
