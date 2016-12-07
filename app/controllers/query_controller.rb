@@ -1,6 +1,24 @@
 class QueryController < ApplicationController
   def qry
-    log = BizLog.create(op_name: 'query', op_message: params.inspect)
+    prv = ReqRecv.new
+    prv.remote_ip = request.remote_ip
+    prv.method = params[:method] || 'query'
+    prv.org_code = params[:org_code]
+    prv.sign = params[:sign]
+    prv.params = request.params.inspect
+    prv.data = params[:data]
+    prv.time_recv = Time.current
+    prv.save
+
+    biz = Biz::PaymentBiz.new
+    biz.query(prv)
+    prv.resp_body = biz.gen_query_response
+    prv.save
+    render json: prv.resp_body
+
+
+
+
     js = Biz::PaymentBiz.parse_data_json(params[:data])
     if js[:resp_code] != '00'
       log.op_result = js.to_json

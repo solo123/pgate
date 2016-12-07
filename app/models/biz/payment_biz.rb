@@ -37,7 +37,7 @@ module Biz
       chk_sign = PooulApi.get_mac(js_recv, @org.tmk)
       if prv.sign != chk_sign
         @err_code = '04'
-        @err_desc = "sign检验错: [#{chk_sign}]<>[#{prv.sign}]"
+        @err_desc = "sign检验错"
         return nil
       end
 
@@ -62,6 +62,70 @@ module Biz
       @resp_json = biz.resp_json
     end
     def gen_response_json
+      if @err_code == '00'
+        @resp_json
+      else
+        {resp_code: @err_code, resp_desc: @err_desc}.to_json
+      end
+    end
+
+    #params: prv = req_recv
+    def query(prv)
+      @err_code = '00'
+      @err_desc = ''
+
+      required_fields = [:org_code, :sign, :data]
+      miss_flds = required_fields.select{|f| prv[f].nil? }
+      unless miss_flds.empty?
+        @err_code = '03'
+        @err_desc = '报文错，缺少字段：' + miss_flds.join(', ')
+        return nil
+      end
+
+      @org = Org.valid_status.find_by(org_code: prv.org_code)
+      if @org.nil?
+        @err_code = '02'
+        @err_desc = "无此商户: #{prv.org_code}"
+        return nil
+      end
+
+      js_recv = parse_data_json(prv.data)
+      unless js_recv
+        @err_code = '03'
+        @err_desc = "业务数据为空: data=[#{prv.data}]"
+        return nil
+      end
+
+      chk_sign = PooulApi.get_mac(js_recv, @org.tmk)
+      if prv.sign != chk_sign
+        @err_code = '04'
+        @err_desc = "sign检验错"
+        return nil
+      end
+
+      if payment = Payment.find_by(org: @org, order_day: order_day, order_num: order_num)
+        if payment.status >= 7
+          #直接返回交易结果
+          @err_code = '00'
+          @resp_json = create_pay_result(payment)
+        else
+          #查询渠道后返回交易结果
+          biz = ChannelBiz.new
+          biz.query(payment)
+          @err_code = biz.err_code
+          @err_desc = biz.err_desc
+          if @err_code == '00'
+            @resp_json = create_pay_result(payment)
+          end
+        end
+      else
+        @err_code = '90'
+        @err_desc = "订单[#{order_day}-#{order_num}]没有找到"
+        @resp_json = nil
+      end
+    end
+    def gen_query_response
+      #TODO: 未修改
       if @err_code == '00'
         @resp_json
       else
@@ -94,8 +158,7 @@ module Biz
     end
 
 
-    #params pm = payment
-    def self.send_notify(pm)
+    def self.create_pay_result(pm)
       notify_time = Time.now
       js = {
         org_code: pm.org.org_code,
@@ -111,16 +174,19 @@ module Biz
         notify_time: notify_time.strftime("%Y%m%d%H%M%S"),
       }.select { |_, value| !value.nil? }
       js[:pay_time] = pm.pay_result.pay_time.strftime("%Y%m%d%H%M%S") if pm.pay_result.pay_time
-      
-      mab = Biz::PubEncrypt.get_mab(js)
-      js[:mac] = Biz::PubEncrypt.md5(mab + pm.org.tmk)
-      sp = Biz::WebBiz.post_data('notify', pm.notify_url, js, pm)
+
+      sign = Biz::PooulApi.get_mac(js, pm.org.tmk)
+      {data: js.to_json, sign: sign}
+    end
+    #params pm = payment
+    def self.send_notify(pm)
+      sp = Biz::WebBiz.post_data('notify', pm.notify_url, create_pay_result(pm), pm)
       if pm.pay_result.notify_times
         pm.pay_result.notify_times += 1
       else
         pm.pay_result.notify_times = 1
       end
-      pm.pay_result.last_notify_at = notify_time
+      pm.pay_result.last_notify_at = Time.now
       pm.pay_result.notify_times = 100 if sp.resp_body =~ /(true)|(ok)|(success)|(SUCCESS)/
       pm.pay_result.save!
       pm.save!

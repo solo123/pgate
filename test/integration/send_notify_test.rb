@@ -27,7 +27,7 @@ class SendNotifyTest < ActionDispatch::IntegrationTest
     pm.notify_url = 'http://notify_url'
     pr = pm.build_pay_result
     pm.save!
-
+    
     sp = Biz::PaymentBiz.send_notify(pm)
     assert_equal 100, pr.notify_times
     puts sp.inspect

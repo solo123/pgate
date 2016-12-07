@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161127194032) do
+ActiveRecord::Schema.define(version: 20161204111237) do
 
   create_table "app_configs", force: :cascade do |t|
     t.string   "group"
@@ -70,6 +70,9 @@ ActiveRecord::Schema.define(version: 20161127194032) do
     t.string  "urbn"
     t.string  "city_area"
     t.text    "address"
+    t.string  "channel_code"
+    t.string  "app_id"
+    t.string  "merchant_type"
     t.index ["org_id"], name: "index_merchants_on_org_id"
   end
 
@@ -240,6 +243,38 @@ ActiveRecord::Schema.define(version: 20161127194032) do
     t.integer "actv_stat"
     t.string  "table_name"
     t.string  "field_name"
+  end
+
+  create_table "zx_mcts", force: :cascade do |t|
+    t.integer  "org_id"
+    t.string   "chnl_id"
+    t.string   "chnl_mercht_id"
+    t.string   "pay_chnl_encd"
+    t.string   "mercht_belg_chnl_id"
+    t.string   "opr_cls"
+    t.string   "acct_nm"
+    t.string   "opn_bnk"
+    t.string   "is_nt_citic"
+    t.string   "acct_typ"
+    t.string   "pay_ibank_num"
+    t.string   "acct_num"
+    t.string   "is_nt_two_line"
+    t.string   "comm_fee_acct_type"
+    t.string   "comm_fee_acct_nm"
+    t.string   "comm_fee_bank_nm"
+    t.string   "ibank_num"
+    t.string   "comm_fee_acct_num"
+    t.string   "trancode"
+    t.string   "submt_dt"
+    t.string   "chk_dt"
+    t.string   "actv_dt"
+    t.string   "actv_stat"
+    t.string   "rtncode"
+    t.string   "rtninfo"
+    t.integer  "status",              default: 0
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
+    t.index ["org_id"], name: "index_zx_mcts_on_org_id"
   end
 
   create_table "zx_merchts", force: :cascade do |t|

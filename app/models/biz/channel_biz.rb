@@ -25,5 +25,12 @@ module Biz
         @resp_json = {resp_code: @err_code, resp_desc: @err_desc}.to_json
       end
     end
+    def query(payment)
+      #TODO: 未添加渠道路由
+      biz = PufubaoApi.new
+      biz.query(payment)
+      @err_code = biz.err_code
+      @err_desc = biz.err_desc      
+    end
   end
 end

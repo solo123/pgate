@@ -81,15 +81,15 @@ module Biz
     def gen_response_json
       if @err_code == '00'
         if @payment.method == 'wechat.scan'
-          {
-            resp_code: '00', org_code: @payment.org.org_code,
+          js = {
+            org_code: @payment.org.org_code,
             order_num: @payment.order_num,
             prepay_id: @payment.pay_result.real_order_num,
             qr_code: @payment.pay_result.qr_code
-          }.to_json
+          }
         elsif @payment.method == 'wechat.micro'
-          {
-            resp_code: '00', org_code: @payment.org.org_code,
+          js = {
+            org_code: @payment.org.org_code,
             order_num: @payment.order_num,
             pay_code: @payment.pay_result.pay_code,
             pay_desc: @payment.pay_result.pay_desc,
@@ -98,14 +98,19 @@ module Biz
             bank_type: @payment.pay_result.bank_type,
             need_query: @payment.pay_result.need_query,
             pay_time: @payment.pay_result.pay_time,
-          }.to_json
+          }
         else
-          {
-            resp_code: '00', org_code: @payment.org.org_code,
+          js = {
+            org_code: @payment.org.org_code,
             order_num: @payment.order_num,
             pay_url: @payment.pay_result.pay_url
-          }.to_json
+          }
         end
+        {
+          resp_code: '00',
+          data: js.to_json,
+          sign: self.class.get_mac(js, @payment.org.tmk)
+        }.to_json
       else
         {resp_code: @err_code, resp_desc: @err_desc}.to_json
       end
@@ -132,10 +137,49 @@ module Biz
       js[:mch_id] = payment.org.pfb_mercht.mch_id
       js[:nonce_str] = SecureRandom.hex(16)
       js[:notify_url] = AppConfig.get('pooul', 'notify_url') + '/pfb/' + payment.pay_result.uni_order_num
-      js[:callback_url] = AppConfig.get('pooul', 'callback_url') + '/pfb/' + payment.pay_result.uni_order_num
+      js[:callback_url] = payment.callback_url
       js[:out_trade_no] = payment.pay_result.uni_order_num
       js[:sign] = self.class.get_mac(js, payment.org.pfb_mercht.mch_key)
       js
+    end
+
+    def query(payment)
+      req_js = {
+        service_type: 'WECHAT_ORDERQUERY',
+        mch_id: payment.org.pfb_mercht.mch_id,
+        out_trade_no: payment.pay_result.uni_order_num,
+        nonce_str: SecureRandom.hex(16),
+      }
+      req_js[:sign] = self.class.get_mac(req_js, payment.org.pfb_mercht.mch_key)
+      pd = WebBiz.post_data('pufubao.query', PUFUBAO_PAY_URL, req_js, payment)
+      if pd
+        js = PublicTools.parse_json(pd.resp_body)
+        if js && js['return_code'] == 'SUCCESS'
+          @err_code = '00'
+          if js['result_code'] == 'SUCCESS'
+            pay_result = payment.pay_result
+            pay_result.app_id = js['appid']
+            pay_result.open_id = js['openid']
+            pay_result.is_subscribe = js['is_subscribe']
+            pay_result.bank_type = js['bank_type']
+            pay_result.total_fee = js['total_fee']
+            pay_result.transaction_id = js['transaction_id']
+            pay_result.pay_time = js['time_end']
+            pay_result.pay_code = '00' if js['trade_state'] == 'SUCCESS'
+            pay_result.pay_desc = js['trade_state']
+            payment.status = 8 if js['trade_state'] == 'SUCCESS'
+          else
+            @err_code = '20'
+            @err_desc = "[#{js['err_code']}] #{js['err_code_des']}"
+          end
+        else
+          @err_code = '20'
+          @err_desc = '通道返回异常'
+        end
+      else
+        @err_code = '21'
+        @err_desc = '通道连接异常'
+      end
     end
 
     def self.process_notify(notify_recv)
