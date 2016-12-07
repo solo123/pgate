@@ -13,3 +13,51 @@ one:
   callback_url: http://localhost:8008/notify/test
   notify_url: http://localhost:8008/callback/test
   status: 0
+
+two:
+  id: 2
+  org_id: 1
+  req_recv_id: 1
+  order_num: ORD-TEST-02
+  order_day: 20161101
+  order_time: 20161101010101
+  order_title: 测试order
+  attach_info: 附加信息
+  amount: 1000
+  remote_ip: 120.0.0.1
+  method: jsapi.pay
+  callback_url: http://localhost:8008/notify/test
+  notify_url: http://localhost:8008/callback/test
+  status: 1
+
+three:
+  id: 3
+  org_id: 1
+  req_recv_id: 1
+  order_num: ORD-TEST-03
+  order_day: 20161101
+  order_time: 20161101010101
+  order_title: 测试order
+  attach_info: 附加信息
+  amount: 1000
+  remote_ip: 120.0.0.1
+  method: jsapi.pay
+  callback_url: http://localhost:8008/notify/test
+  notify_url: http://localhost:8008/callback/test
+  status: 8
+
+four:
+  id: 4
+  org_id: 1
+  req_recv_id: 1
+  order_num: ORD-TEST-04
+  order_day: 20161101
+  order_time: 20161101010101
+  order_title: 测试order
+  attach_info: 附加信息
+  amount: 1000
+  remote_ip: 120.0.0.1
+  method: jsapi.pay
+  callback_url: http://localhost:8008/notify/test
+  notify_url: http://localhost:8008/callback/test
+  status: 7

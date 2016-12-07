@@ -154,23 +154,30 @@ module Biz
       pd = WebBiz.post_data('pufubao.query', PUFUBAO_PAY_URL, req_js, payment)
       if pd
         js = PublicTools.parse_json(pd.resp_body)
-        if js && js['return_code'] == 'SUCCESS'
+        if js && js[:return_code] == 'SUCCESS'
           @err_code = '00'
-          if js['result_code'] == 'SUCCESS'
+          if js[:result_code] == 'SUCCESS'
             pay_result = payment.pay_result
-            pay_result.app_id = js['appid']
-            pay_result.open_id = js['openid']
-            pay_result.is_subscribe = js['is_subscribe']
-            pay_result.bank_type = js['bank_type']
-            pay_result.total_fee = js['total_fee']
-            pay_result.transaction_id = js['transaction_id']
-            pay_result.pay_time = js['time_end']
-            pay_result.pay_code = '00' if js['trade_state'] == 'SUCCESS'
-            pay_result.pay_desc = js['trade_state']
-            payment.status = 8 if js['trade_state'] == 'SUCCESS'
+            pay_result.app_id = js[:appid]
+            pay_result.open_id = js[:openid]
+            pay_result.is_subscribe = js[:is_subscribe]
+            pay_result.bank_type = js[:bank_type]
+            pay_result.total_fee = js[:total_fee]
+            pay_result.transaction_id = js[:transaction_id]
+            pay_result.pay_time = js[:time_end]
+            pay_result.pay_state = js[:trade_state]
+            if js[:trade_state] == 'SUCCESS'
+              pay_result.pay_code = '00'
+            else
+              pay_result.pay_code = js[:trade_state]
+            end
+            pay_result.pay_desc = js[:trade_state]
+            payment.status = 8 if js[:trade_state] == 'SUCCESS'
+            pay_result.save!
+            payment.save!
           else
             @err_code = '20'
-            @err_desc = "[#{js['err_code']}] #{js['err_code_des']}"
+            @err_desc = "[#{js[:err_code]}] #{js[:err_code_des]}"
           end
         else
           @err_code = '20'

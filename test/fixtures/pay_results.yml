@@ -3,3 +3,23 @@ one:
   payment_id: 1
   uni_order_num: 'uni_001'
   channel_client_id: 'client_001'
+
+two:
+  id: 2
+  payment_id: 2
+  uni_order_num: 'uni_002'
+  channel_client_id: 'client_001'
+
+three:
+  id: 3
+  payment_id: 3
+  uni_order_num: 'uni_003'
+  channel_client_id: 'client_001'
+  pay_code: '00'
+
+four:
+  id: 4
+  payment_id: 4
+  uni_order_num: 'uni_004'
+  channel_client_id: 'client_001'
+  pay_code: '70'
