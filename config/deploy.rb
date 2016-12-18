@@ -14,7 +14,7 @@ app_name = 'pgate'
 
 set :domain, 'rb@a.pooulcloud.cn'
 set :deploy_to, "/home/rb/work/#{app_name}"
-set :repository, "https://github.com/solo123/#{app_name}.git"
+set :repository, "git@github.com:solo123/#{app_name}.git"
 set :branch, 'deploy'
 
 # Optional settings:
