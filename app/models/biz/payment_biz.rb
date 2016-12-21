@@ -1,6 +1,6 @@
 module Biz
   class PaymentBiz < BizBase
-    attr_reader :err_code, :err_desc, :resp_json
+    attr_reader :err_code, :err_desc, :resp_json, :redirect_url
     FLDS_PAYMENT = %w(
       app_id open_id order_num order_time order_title
       attach_info amount fee remote_ip terminal_num
@@ -35,6 +35,7 @@ module Biz
       biz.pay(payment)
       @err_code = biz.err_code
       @err_desc = biz.err_desc
+      @redirect_url = payment.pay_result.pay_url if @err_code == '00' && payment.method == 'wechat.jsapi'
       @resp_json = biz.resp_json
     end
     def gen_response_json

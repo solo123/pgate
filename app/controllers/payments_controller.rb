@@ -14,6 +14,11 @@ class PaymentsController < ApplicationController
     biz.pay(prv)
     prv.resp_body = biz.gen_response_json
     prv.save
-    render json: prv.resp_body
+
+    if biz.err_code == '00' && params[:redirect] == 'Y'
+      redirect_to biz.redirect_url, status: 302
+    else
+      render json: prv.resp_body
+    end
   end
 end

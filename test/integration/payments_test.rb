@@ -68,12 +68,14 @@ class PaymentsTest < ActionDispatch::IntegrationTest
     assert_equal '03', resp['resp_code'], resp['resp_desc']
   end
 
-=begin
   test 'P001 成功提交' do
-    Biz::WebBiz.stubs(:post_data).returns({resp_code: '00', redirect_url: 'https://open.weixin.qq.com/mock'})
-    params = {
-      org_id: 'pooul',
-      trans_type: 'P001',
+    stub_request(:post, "http://brcb.pufubao.net/gateway").
+      to_return(status: 302, headers: { 'Location': 'https://open.weixin.qq.com/mock'})
+
+    org = orgs(:one)
+    js = {
+      org_code: org.org_code,
+      method: 'wechat.jsapi',
       order_time: '20160915010231',
       order_id: 'A20100001',
       order_title: '普尔支付-购买测试商品',
@@ -86,15 +88,52 @@ class PaymentsTest < ActionDispatch::IntegrationTest
       notify_url: 'http://myapps.com/nitify',
       callback_url: 'http://mobileapp.com/callback'
     }
-    params[:mac] = Biz::PaymentBiz.get_client_mac(params)
-    post pay_url, params: {data: params.to_json}
+    params = {
+      org_code: org.org_code,
+      method: 'wechat.jsapi',
+      data: js.to_json,
+      sign: Biz::PooulApi.get_mac(js, org.tmk)
+    }
+    post pay_url, params: params
     assert_response :success
     j = JSON.parse(response.body)
 
-    assert_equal '00', j['resp_code']
-    assert_match /^https:\/\/open.weixin.qq.com/, j['redirect_url']
+    assert_equal '00', j['resp_code'], j.inspect
+    assert_match /https:\/\/open.weixin.qq.com/, j['data']
   end
-=end
+  test 'P001 成功提交 http302 redirect' do
+    redirect_url = 'https://open.weixin.qq.com/mock'
+    stub_request(:post, "http://brcb.pufubao.net/gateway").
+      to_return(status: 302, headers: { 'Location': redirect_url})
+
+    org = orgs(:one)
+    js = {
+      org_code: org.org_code,
+      method: 'wechat.jsapi',
+      order_time: '20160915010231',
+      order_id: 'A20100001',
+      order_title: '普尔支付-购买测试商品',
+      pay_pass: '1',
+      amount: '1000',
+      fee: '33',
+      card_no: '600012341000123',
+      card_holder_name: ' 张三丰',
+      person_id_num: '440101190001010011',
+      notify_url: 'http://myapps.com/nitify',
+      callback_url: 'http://mobileapp.com/callback'
+    }
+    params = {
+      org_code: org.org_code,
+      method: 'wechat.jsapi',
+      data: js.to_json,
+      sign: Biz::PooulApi.get_mac(js, org.tmk),
+      redirect: 'Y'
+    }
+    post pay_url, params: params
+    assert_response :redirect
+    assert_redirected_to redirect_url
+  end
+
   test "invalid format post" do
     post pay_url, params: "a=1&b=2"
     assert_response :success

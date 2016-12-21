@@ -13,8 +13,8 @@ class SendNotifyTest < ActionDispatch::IntegrationTest
 
     sp = Biz::PaymentBiz.send_notify(pm)
     assert_equal 1, pr.notify_times
-    puts sp.inspect
-    puts sp.result_message
+    #puts sp.inspect
+    #puts sp.result_message
   end
   test "send notify success" do
     stub_request(:any, 'notify_url').to_return(
@@ -27,10 +27,10 @@ class SendNotifyTest < ActionDispatch::IntegrationTest
     pm.notify_url = 'http://notify_url'
     pr = pm.build_pay_result
     pm.save!
-    
+
     sp = Biz::PaymentBiz.send_notify(pm)
     assert_equal 100, pr.notify_times
-    puts sp.inspect
-    puts sp.result_message
+    #puts sp.inspect
+    #puts sp.result_message
   end
 end
