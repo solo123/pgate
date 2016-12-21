@@ -31,7 +31,7 @@ module Biz
       #TODO: pufubao pay
       @req_data = gen_pay_req_data(payment)
       ret = WebBiz.post_data('pufubao.pay', PUFUBAO_PAY_URL, @req_data, payment)
-      if ret && ret.resp_body.start_with?('redirect_url')
+      if ret && ret.resp_body && ret.resp_body.start_with?('redirect_url')
         pr.pay_url = ret.resp_body[13, 200]
         pr.send_code = '00'
         payment.status = 1
