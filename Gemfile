@@ -40,8 +40,9 @@ end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
-gem 'pgate_model', git: 'https://github.com/solo123/pgate_model.git'
-#gem 'pgate_model', path: '../pgate_model'
+#gem 'pgate_model', git: 'https://github.com/solo123/pgate_model.git'
+gem 'pgate_model', path: '../pgate_model'
 gem 'sucker_punch', '~> 2.0'
 gem 'carrierwave', '>= 1.0.0.rc', '< 2.0'
 gem 'airbrake'
+gem 'httparty'

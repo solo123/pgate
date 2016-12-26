@@ -73,6 +73,7 @@ module Biz
           payment.status = 7
         end
       end
+      pr.send_desc = pr.send_desc.truncate(2000, omission: '...')
       pr.save!
       payment.save!
       @err_code = pr.send_code.to_s
