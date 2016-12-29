@@ -21,7 +21,28 @@ module Biz
         @req_data = gen_micro_pay_xml
         ret = post_xml('hzyb.pay', HZYB_PAY_URL + "/barcodePay", @req_data, payment)
         reply_micro_xml(ret, pr)
-      when 'wechat.abc'
+      when 'wechat.jsapi'
+        # params = {
+        #   'mercId': mch_id, # 商户编号
+        #   'mercOrdNo': order_id, # 商户订单编号
+        #   'merOrdDate': Time.now.strftime("%Y%m%d"), # 商户订单日期
+        #   'Subject': '公众号测试订单', # 订单标题
+        #   'payChannel': '1', # 支付渠道
+        #   'txAmt': '0.01', # 金额
+        #   'notifyUrl': notify_url #通知商户后台URL
+        # }
+        # @sign_str = ''
+        # ['mercId','mercOrdNo','merOrdDate','txAmt','payChannel','notifyUrl'].each do |str_key|
+        #   puts "#{str_key} = #{params[str_key.to_sym]}"
+        #   @sign_str += "#{params[str_key.to_sym]}"
+        # end
+        # sn = sign1(@sign_str)
+        # puts "=======签名后数据：#{sn}"
+        # params['merchantSign'] = sn
+        # puts params
+
+        # resp = HTTParty.post(url, body: params)
+        # puts resp
       else
         ret = nil
         pr.send_code = '03'
